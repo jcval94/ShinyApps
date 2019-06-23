@@ -1,0 +1,354 @@
+#
+# This is a Shiny web application. You can run the application by clicking
+# the 'Run App' button above.
+#
+# Find out more about building applications with Shiny here:
+#
+#    http://shiny.rstudio.com/
+
+# list.of.packages <- c("shiny","ggmap","assertthat","shinyFiles","shinydashboard","shinydashboardPlus",
+#                       "plyr","timeSeries","foreign","forecast","tseries","reshape2",
+#                       "assertthat","fitdistrplus","randomForest","rpart","mclust","sqldf",
+#                       "MLmetrics","Matrix","dplyr","ADGofTest","shinyShortcut","readr","xlsx",
+#                       "purrr","boot","TSA","data.table","forecast","ggplot2","shinyjs","V8",
+#                       "Hmisc","RODBC","sf","tmap","ggpubr","DT","corrplot","NbClust","Rcpp",
+#                       "shinycssloaders","FitUltD")
+# list.of.packages_GIT<-c("leaflet")
+#No se puede usar esta forma, 
+#lapply(c(list.of.packages),function(x){try(library(x,character.only=TRUE),silent = T)}) 
+s1<-function(X){X+3}
+text_eval<-function(a){
+    if(class(a)!="character"){return()}
+    eval(parse(text = a))
+}
+
+library(FitUltD)
+library(DT)
+library(shinyjs)
+library(shinydashboard)
+library(shinycssloaders)
+library(sqldf)
+library(V8)
+library(ggplot2)
+library(assertthat)
+library(FitUltD)
+library(caret)
+library(randomForest)
+# Define UI for application that draws a histogram
+
+
+ui <- fluidPage(
+    
+    useShinyjs(),
+    # extendShinyjs(text = "shinyjs.reset = function() {history.go(0)}"),
+    
+    dashboardPage(
+        dashboardHeader(title = "iLightData", titleWidth = 800,
+                        dropdownMenu(
+                            messageItem(
+                                from = "Contact",
+                                message = paste("valc941226@gmail.com", "JC Del Valle", sep="\n"),
+                                icon = icon("life-ring"),
+                                time = Sys.Date()
+                            )
+                        )
+                        ),
+        
+        dashboardSidebar(
+            
+            sidebarMenu(
+                menuItem("Query", tabName = "QUER",icon = icon("border-all")),
+                #menuItem("Seasonality", tabName = "SEASON"),
+                menuItem("FitUltD", tabName = "FITJC",icon = icon("chart"))
+                
+            )
+        ),
+        dashboardBody(
+            # within tabitems(), define the pages for sidebar menu items
+            tabItems(
+        tabItem(tabName = "QUER", 
+                br(),
+                h2("Summary"),
+                h4("This tab appears to show R's compatibility with SQL,
+                   even if you donn't have R installed on the PC"),
+                actionButton("Con_D","Run SQL"),
+                actionButton("Con_R","Run R"),
+                    textInput("query__01",label =  h3("Query (SQL)"), 
+                              value = "SELECT * FROM DF WHERE Species = \"virginica\" ",
+                              width = "700px"),
+                textInput("query__02",label =  h3("Query (R)"), 
+                          value = "table(DF[[\"Species\"]])",
+                          width = "700px"),
+                h4("You can write any code accepted by R whose output be a data.frame:"),
+                h5("importance(randomForest(Ozone ~ ., data=airquality, mtry=3,
+                        importance=TRUE, na.action=na.omit))"),
+                #textOutput("query_r"),
+                
+                hr(),
+                dataTableOutput("DLS")
+        ),
+        tabItem(tabName = "FITJC", 
+                h2("My package"),
+                h4("I created a new EasyFit tool, including mixed and multimodal distributions (Just be careful with overfitting)"),
+                textInput("SIM_Dist",label =  h3("Chose a modal or multimodal distribution."), 
+                          value = "c(rnorm(1000,0,1),rgamma(1000,9,2))",
+                          width = "600px"),
+                actionButton("SIM_FT","Simulate"),
+                actionButton("FIT_FT","Fit"),
+                
+                plotOutput("Sim_plot"),
+                withSpinner(dataTableOutput("Sim_sum"),type = 6),
+                plotOutput("Fit_plot"),
+                dataTableOutput("Fit_sum"),
+                plotOutput("Fit_plot2") 
+                
+                # withSpinner(plotOutput("Fit_plot"),type = 6)
+                
+                )
+        # tabItem(tabName = "SEASON", 
+        #                    tabPanel("Seasonality",
+        #                        selectInput("Var_est","Select variable",choices = c("Year","Decade"),multiple = F),
+        #                        #actionButton("Var_est_subg","Seleccionar subgrupos"),
+        #                        uiOutput("filtro_avanzado_est"),
+        #                        br(),
+        #                        actionButton("est_ejec","Run"),
+        #                        downloadButton("est_downl","Download"),
+        #                        uiOutput("plot_avanzado_est")
+        #                    
+        #                    , icon = icon("chart-line")
+        #                    
+        #                    )
+        #                    
+        #         
+        # )
+        )
+        
+        )
+    )
+)
+
+#######################################################
+#######################################################
+#######################################################
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+    
+    output$query_r<-renderPrint({"Try kmeans(DF[,-5],3)[[2]]"})
+    
+    output$DLS<-renderDataTable({
+        data(iris)
+        iris
+    },options = list(scrollX = TRUE))
+    
+    observeEvent(input$Con_D,{
+        if(exists("Data_server_")){
+            DF<-Data_server_
+        }else{
+            data(iris)
+            DF<-iris
+        }
+        
+        consulta__01<-input$query__01
+        
+        qqry<-try(sqldf::sqldf(consulta__01))
+        if(assertthat::is.error(qqry)){
+            qqry<-data.frame(Error=as.character(qqry))
+        }
+        
+        output$DLS<-renderDataTable({
+            qqry
+        },options = list(scrollX = TRUE))
+        
+    })
+    observeEvent(input$Con_R,{
+        if(exists("Data_server_")){
+            DF<-Data_server_
+        }else{
+            data(iris)
+            DF<-iris
+        }
+        
+        consulta__02<-input$query__02
+        consulta__02<-paste0("DF<-iris;",consulta__02)
+        #consulta__01<-input$query__01
+        qqry<-try(text_eval(consulta__02))
+        #qqry<-try(sqldf::sqldf(consulta__01))
+        
+        if(assertthat::is.error(qqry)){
+            qqry<-data.frame(Error=as.character(qqry))
+        }
+        if(!"data.frame" %in% class(qqry)){
+            qqry<-as.data.frame(qqry)
+        }
+        output$DLS<-renderDataTable({
+            qqry
+        },options = list(scrollX = TRUE))
+        
+    })
+    
+    ###############SEASON################
+    
+    # observeEvent(input$est_ejec,{
+    #     
+    #     Data_server_<-sunspots
+    #     Data_server_<-as.data.frame(Data_server_)
+    #     Data_server_[["Year"]]<-as.factor(rep(1749:(1749+234),each=12))
+    #     Data_server_[["Decade"]]<-as.factor(c(rep(1:23,each=120),rep(24,60)))
+    #     
+    #     names(Data_server_)[1]<-"Data_server_"
+    #     
+    #     if(!exists("Data_server_")){
+    #         output$plot_avanzado_est<-renderText({
+    #             "No Data"
+    #         })
+    #     }else{
+    #         #Todos los filtros nuevos creados
+    #         Variables<<-input$Var_est
+    #         inpts_nvs<-paste0("estttt",Variables)
+    #         
+    #         Variables_selec<-purrr::map(inpts_nvs,~input[[.x]])
+    #         
+    #         if(!is.null(Variables_selec[[1]])){
+    #             #Ahora aplicaremos todos los filtros
+    #             TF_Data_server_<-purrr::map(1:length(Variables),~Data_server_[[Variables[.x]]] %in% Variables_selec[[.x]])
+    #             
+    #             if(length(TF_Data_server_)>1)
+    #                 subbbb<-oper(TF_Data_server_,op = "AND")
+    #             else
+    #                 subbbb<-TF_Data_server_[[1]]
+    #             
+    #             Data__est<-Data_server_[subbbb,]
+    #         }else{
+    #             Data__est<<-Data_server_
+    #         }
+    #         
+    #         if(is.null(Variables_selec[[1]])){
+    #             PA_T10<-as.data.frame(table(Data__est[[Variables]]))
+    #             Variables_selec<-list(head(PA_T10[order(-PA_T10$Freq),"Var1"],10))
+    #         }
+    #         
+    #         # Variables<<-Variables
+    #         # Variables_selec<<-Variables_selec
+    #         Variables_selec[[1]]<<-Variables_selec[[1]][nchar(as.character(Variables_selec[[1]]))>0]
+    #         
+    #         Tablas_Est_dwnld<<-list()
+    #         pw<-0
+    #         #print(Variables_selec[[1]])
+    #         for (Contt in 1:length(Variables_selec[[1]])) {
+    #             pw<-pw+1
+    #             rr<-Contt
+    #             local({
+    #                 print(Variables_selec[[1]][rr])
+    #                 
+    #                 Info_EST<-try(Fechas(Clasificacion = Variables,subgrupo = Variables_selec[[1]][rr],PA = Data__est))
+    #                 
+    #                 if(is.null(Info_EST) | is.error(Info_EST)){
+    #                     Info_EST<-NULL
+    #                     output[[paste0("Est_pl",rr)]]<-renderPlot({
+    #                         Info_EST
+    #                     })
+    #                     output[[paste0("Est_tl",rr)]]<-renderDataTable({
+    #                         data.frame(Info="No hay suficientes datos para realizar un análisis completo")
+    #                     },options = list(scrollX = TRUE))
+    #                     
+    #                 }else{
+    #                     
+    #                     Ploteos_Est<-Info_EST[[1]]
+    #                     Tablas_Est<-Info_EST[[2]]
+    #                     Tablas_Est_dwnld[[pw]]<<-Tablas_Est[[1]]
+    #                     
+    #                     Pts_inf<-list(Tablas_Est[[1]][c(diff(Tablas_Est[[1]][["Clu_n"]])!=0,F),])
+    #                     #print(paste0("Est_pl",rr))
+    #                     output[[paste0("Est_pl",rr)]]<-renderPlot({
+    #                         Ploteos_Est[[1]]
+    #                     })
+    #                     
+    #                     output[[paste0("Est_tl",rr)]]<-renderDataTable({
+    #                         names(Tablas_Est[[1]])[2]<-"Registros Totales"
+    #                         Tablas_Est[[1]][,-c(6:8,10)]
+    #                         #print(head(Tablas_Est[[rr]]))
+    #                     },options = list(scrollX = TRUE))
+    #                     
+    #                     output[[paste0("Est_tl_ifx",rr)]]<-renderDataTable({
+    #                         names(Pts_inf[[1]])[2]<-"Registros Totales"
+    #                         Pts_inf[[1]][,-c(6:8,10)]
+    #                     },options = list(scrollX = TRUE))
+    #                     
+    #                 }
+    #             })
+    #         }
+    #         #print(paste0("Output definido ", length(Variables_selec[[1]])))
+    #         
+    #         output$plot_avanzado_est<-renderUI({
+    #             vars_output_list <- lapply(1:length(Variables_selec[[1]]), function(i) {
+    #                 plotname <- paste0("Est_pl",i)
+    #                 tablaname <- paste0("Est_tl",i)
+    #                 tablaname2 <- paste0("Est_tl_ifx",i)
+    #                 
+    #                 list(dataTableOutput(tablaname),
+    #                      plotOutput(plotname, height = 640, width = 810),
+    #                      dataTableOutput(tablaname2))
+    #                 
+    #             })
+    #             do.call(tagList, vars_output_list)
+    #         })
+    #         
+    #         
+    #     }
+    # })
+    
+    ###############FIT
+    
+    observeEvent(input$SIM_FT,{
+        sim<-text_eval(input$SIM_Dist)
+        
+        df <- data.frame(x <- sim,
+                         group <- sample(LETTERS[1:5], size = length(sim), replace = T))
+        
+        p <- ggplot(df, aes(x)) + 
+            geom_histogram(aes(y = ..density..), alpha = 0.7, fill = "#333333") + 
+            geom_density(fill = "#ff4d4d", alpha = 0.35) + 
+            theme(panel.background = element_rect(fill = '#ffffff')) + 
+            ggtitle("Density with Histogram")
+        
+        output$Sim_plot <- renderPlot({
+            p
+        })
+        output$Sim_sum<-renderDataTable({
+            data.frame(Min=round(min(sim),4),
+                       Median=round(median(sim),4),
+                       Mean=round(mean(sim),4),
+                       Max=round(max(sim),4),
+                       SD=round(sd(sim),4))
+        },options = list(scrollX = TRUE))
+        
+        observeEvent(input$FIT_FT,{
+            sim<-text_eval(input$SIM_Dist)
+            
+            A<-FitUltD::FDistUlt(sim,plot = T,subplot = T,crt = 2)
+            
+            output$Fit_plot <- renderPlot({
+                A[[4]][[1]]
+            })
+            AA<-A[[3]][,1:4]
+            if(nrow(AA)>4){AA[,5]<-"Overfit"}
+            output$Fit_sum<-renderDataTable({
+                AA
+            },options = list(scrollX = TRUE))
+            
+            output$Fit_plot2 <- renderPlot({
+                if(nrow(AA)>1){A[[4]][[2]]}
+            })
+            
+        })
+        
+    })
+    
+    if(FALSE){
+        library(rsconnect)
+        deployApp()
+    }
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
