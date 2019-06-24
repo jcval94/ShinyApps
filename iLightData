@@ -64,7 +64,7 @@ ui <- fluidPage(
                 #menuItem("Seasonality", tabName = "SEASON"),
                 menuItem("FitUltD", tabName = "FITJC",icon = icon("chart")),
                 
-                menuItem("ML", tabName = "ML_C",icon = icon("chart"))
+                menuItem("Machine Learning", tabName = "ML_C",icon = icon("chart"))
                 
             )
         ),
@@ -74,8 +74,7 @@ ui <- fluidPage(
         tabItem(tabName = "QUER", 
                 br(),
                 h2("Summary"),
-                h4("This tab appears to show R's compatibility with SQL,
-                   even if you don't have R installed on the PC"),
+                h4("This tab runs R's and SQL code online"),
                 actionButton("Con_D","Run SQL"),
                 actionButton("Con_R","Run R"),
                     textInput("query__01",label =  h3("Query (SQL)"), 
@@ -115,14 +114,25 @@ ui <- fluidPage(
                 uiOutput("datasets"),
                 #selectInput("Var_est","Select Dataset",choices = c("Year","Decade"),multiple = F),
                 
-                selectInput("ML_method","Cho0se a ML method",
+                selectInput("ML_method","Choose a ML model",
                             choices = c("rf"),
                             selected = "rf"),
                 uiOutput("Data_Form"),
                 uiOutput("Paramss"),
+                uiOutput("Train_Split"),
+                
                 actionButton("select_data","View data"),
+                actionButton("Run_ml","Run ML"),
+                
+                sliderInput("Run_cv", label = "Cross Val",
+                            min = 2,max = 20,2
+                ),
+                actionButton("",""),
+                
                 dataTableOutput("Data_View"),
-                uiOutput("Dist_Data")
+                uiOutput("Dist_Data"),
+                dataTableOutput("ML_Data"),
+                plotOutput("ML_pl")
                 )
         
         # tabItem(tabName = "SEASON", 
@@ -387,11 +397,17 @@ server <- function(input, output) {
         
         meth<-input$ML_method
         
+        output$Train_Split <- renderUI(
+            if(meth=="rf"){
+                sliderInput("TTS", label = "Folds",
+                            min = 3,max = 10,4
+                )
+            })
         output$Paramss <- renderUI(
             if(meth=="rf"){
-                selectInput("Dataa", label = "Select Dataset",
-                            choices = dtsts[classes %in% "data.frame"],
-                            selected = "",multiple = F)
+                sliderInput("Data_rf", label = "N. tree",
+                            min = 20,max = 800,400
+                            )
             }
             # if(meth=="knn"){
             #     selectInput("Data", label = "Select Dataset",
@@ -413,9 +429,8 @@ server <- function(input, output) {
         ND<-names(Data)
         
         output$Data_Form<-renderUI({
-            textInput("Form_ML","Write the dependant and independent(s) variables",
+            textInput("Form_ML","Write the independant and dependent(s) variables",
             paste0(ND[1]," ~ ",paste0(ND[2:length(ND)],collapse = " + "))
-            
                 )
         })
         
@@ -460,6 +475,67 @@ server <- function(input, output) {
         
         
     })
+    
+    observeEvent(input$Run_ml,{
+        Data<<-get(input$Data)
+        ntree<<-input$Data_rf
+        form<<-formula(input$Form_ML)
+        
+        if(!exists("TTS")){TTS<-.7}
+        
+        TrainTestSplit<-function (df,split=TTS){
+            if(!any("data.frame" %in% class(df))){
+                exit("must be a data.frame object")
+            }
+            RndmV<-runif(nrow(df),0,1)
+            tr<-RndmV<split
+            
+            list(df[tr,],df[!tr,])
+            
+        }
+        
+        A<-TrainTestSplit(Data)
+        Train<-A[[1]];Test<-A[[2]]
+        
+        # rf<-try(randomForest(formula=form,
+        #                        data = Train,
+        #                        ntree = ntree,
+        #                        na.action = na.omit,importance=T))
+        #na.omit(Train)->TRRR
+        rpartFit <- try(train(form,
+                          data = na.omit(Data),
+                          method = "rf",#input$ML_method,
+                          #metric="Accuracy",
+                          trControl=trainControl(method="repeatedcv", number=input$Run_cv, repeats=3, search="grid"),
+                          ntree=ntree))
+        
+        #if(assertthat::is.error(rf)){rf<-NULL}
+        
+        Predic<-predict(rpartFit,Test[,!names(Test) %in% as.character(form)[2]])
+        Real<-Test[,names(Test) %in% as.character(form)[2]]
+        
+        # caret::confusionMatrix(as.numeric(Predic), Real) 
+        # ERR<-sum((Predic - Real)^2)/length(Real)
+        
+        # output$ML_pl<-renderPlot({
+        #     #datatable(round(importance(rf), 2))
+        #     plotOutput(plot(rf))
+        #                     #,main=paste0("Error/RMSE: ",round(sqrt(sum((Predic - Real)^2,na.rm=T)/length(Real)),4))))
+        # })
+        # 
+        output$ML_pl<-renderPlot({
+            
+            plot(rpartFit,main="Random Forest")
+        })
+        
+        # A<-as.data.frame(round(importance(rf),2))
+        # A[[ncol(A)+1]]<-paste0("Error/RMSE: ",round(sqrt(sum((Predic - Real)^2,na.rm=T)/length(Real)),4))
+        output$ML_Data<-renderDataTable({
+            round(rpartFit[[4]],4)
+        })
+        
+    })
+    
     
     if(FALSE){
         library(rsconnect)
