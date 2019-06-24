@@ -22,6 +22,9 @@ text_eval<-function(a){
     eval(parse(text = a))
 }
 
+dtsts<-ls("package:datasets")
+classes<-purrr::map(dtsts,~class(text_eval(.x)))
+
 library(FitUltD)
 library(DT)
 library(shinyjs)
@@ -59,7 +62,9 @@ ui <- fluidPage(
             sidebarMenu(
                 menuItem("Query", tabName = "QUER",icon = icon("border-all")),
                 #menuItem("Seasonality", tabName = "SEASON"),
-                menuItem("FitUltD", tabName = "FITJC",icon = icon("chart"))
+                menuItem("FitUltD", tabName = "FITJC",icon = icon("chart")),
+                
+                menuItem("ML", tabName = "ML_C",icon = icon("chart"))
                 
             )
         ),
@@ -70,7 +75,7 @@ ui <- fluidPage(
                 br(),
                 h2("Summary"),
                 h4("This tab appears to show R's compatibility with SQL,
-                   even if you donn't have R installed on the PC"),
+                   even if you don't have R installed on the PC"),
                 actionButton("Con_D","Run SQL"),
                 actionButton("Con_R","Run R"),
                     textInput("query__01",label =  h3("Query (SQL)"), 
@@ -90,7 +95,7 @@ ui <- fluidPage(
         tabItem(tabName = "FITJC", 
                 h2("My package"),
                 h4("I created a new EasyFit tool, including mixed and multimodal distributions (Just be careful with overfitting)"),
-                textInput("SIM_Dist",label =  h3("Chose a modal or multimodal distribution."), 
+                textInput("SIM_Dist",label =  h3("Choose a modal or multimodal distribution."), 
                           value = "c(rnorm(1000,0,1),rgamma(1000,9,2))",
                           width = "600px"),
                 actionButton("SIM_FT","Simulate"),
@@ -104,7 +109,22 @@ ui <- fluidPage(
                 
                 # withSpinner(plotOutput("Fit_plot"),type = 6)
                 
+                ),
+        tabItem(tabName = "ML_C", 
+                h2("Machine Learning Tab"),
+                uiOutput("datasets"),
+                #selectInput("Var_est","Select Dataset",choices = c("Year","Decade"),multiple = F),
+                
+                selectInput("ML_method","Cho0se a ML method",
+                            choices = c("rf"),
+                            selected = "rf"),
+                uiOutput("Data_Form"),
+                uiOutput("Paramss"),
+                actionButton("select_data","View data"),
+                dataTableOutput("Data_View"),
+                uiOutput("Dist_Data")
                 )
+        
         # tabItem(tabName = "SEASON", 
         #                    tabPanel("Seasonality",
         #                        selectInput("Var_est","Select variable",choices = c("Year","Decade"),multiple = F),
@@ -341,6 +361,103 @@ server <- function(input, output) {
             })
             
         })
+        
+    })
+    
+    #####################CARET ML##########################
+    
+    output$datasets <- renderUI(
+        selectInput("Data", label = "Select Dataset", 
+                           choices = dtsts[classes %in% "data.frame"], 
+                           selected = "",multiple = F)
+    )
+    
+    observeEvent(input$select_data,{
+        print(input$Data)
+        Data<-get(input$Data)
+        
+            output$Data_View<-renderDataTable({
+                Data
+            },options = list(scrollX = TRUE))
+        
+    })
+    
+    
+    observeEvent(input$ML_method,{
+        
+        meth<-input$ML_method
+        
+        output$Paramss <- renderUI(
+            if(meth=="rf"){
+                selectInput("Dataa", label = "Select Dataset",
+                            choices = dtsts[classes %in% "data.frame"],
+                            selected = "",multiple = F)
+            }
+            # if(meth=="knn"){
+            #     selectInput("Data", label = "Select Dataset",
+            #                 choices = dtsts[classes %in% "data.frame"],
+            #                 selected = "iris",multiple = F)
+            # }
+            # if(meth=="nnet"){
+            #     selectInput("Data", label = "Select Dataset",
+            #                 choices = dtsts[classes %in% "data.frame"],
+            #                 selected = "iris",multiple = F)
+            # }
+            
+        )
+    })
+    
+    
+    observeEvent(input$Data,{
+        Data<-get(input$Data)
+        ND<-names(Data)
+        
+        output$Data_Form<-renderUI({
+            textInput("Form_ML","Write the dependant and independent(s) variables",
+            paste0(ND[1]," ~ ",paste0(ND[2:length(ND)],collapse = " + "))
+            
+                )
+        })
+        
+    })
+    
+    observeEvent(input$select_data,{
+        Data<-get(input$Data)
+        
+        for(i in 1:ncol(Data)){local({
+            id<-i
+            Cll<-Data[[id]]
+            
+            if(is.numeric(Cll)){
+                Alss<-data.frame(Min=round(min(Cll),4),
+                                 Median=round(median(Cll),4),
+                                 Mean=round(mean(Cll),4),
+                                 Max=round(max(Cll),4),
+                                 SD=round(sd(Cll),4))
+            }else{
+                Alss<-as.data.frame(table(Cll))
+                Alss<-Alss[order(-Alss[[2]]),]
+                
+            }
+            
+            output[[paste0("Usuario ",id)]] <- renderValueBox({
+                valueBox(subtitle = paste0(paste0(names(Alss),": ",Alss),collapse = ", "),
+                         value = names(Data)[id] , color = "aqua" , width = 4
+                         )
+            })
+        })
+        }
+        
+        output$Dist_Data <- renderUI({
+            plot_output_list <- lapply(1:ncol(Data), function(i) {
+                plotname <- paste0("Usuario ",i)
+                #plotOutput(plotname, height = 420, width = 810)
+                valueBoxOutput(plotname)
+            })
+            do.call(tagList, plot_output_list)
+        })
+        
+        
         
     })
     
