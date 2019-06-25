@@ -39,6 +39,16 @@ library(caret)
 library(randomForest)
 # Define UI for application that draws a histogram
 
+#########Resumen
+#La primera tab nació como una forma de programar en R sin necesidad de tenerlo instalado en una computadora debido a las restricciones de uso de licencia libre de algunas empresas y aprovechar la integración natural que hay con sql (pues utilizaban MS Access para la administración de bases de datos)
+
+#La segunda es un proyecto personal, nació por la necesidad de ajustar un modelo paramétrico a una enfermedad que afectaba a dos sectores de la población en dos diferentes momentos y se convirtió en una nueva forma de ajustar distribuciones con ayuda de modelos clasificatorios de machine learning
+
+#La tercera existe para definir los mínimos requerimientos que debe tener una base de datos para aplicar modelos estadísticos, pues la empresa deseaba migrar información de valor y no gastar recursos en bases obsoletas
+
+#La cuarta surge como una respuesta rápida y sin costo a la visualización de una base de datos y su integración con modelos de ML
+#########
+
 
 ui <- fluidPage(
     
@@ -63,6 +73,7 @@ ui <- fluidPage(
                 menuItem("Query", tabName = "QUER",icon = icon("border-all")),
                 #menuItem("Seasonality", tabName = "SEASON"),
                 menuItem("FitUltD", tabName = "FITJC",icon = icon("chart")),
+                menuItem("Data Quality", tabName = "DQ_T",icon = icon("chart")),
                 
                 menuItem("Machine Learning", tabName = "ML_C",icon = icon("chart"))
                 
@@ -74,7 +85,7 @@ ui <- fluidPage(
         tabItem(tabName = "QUER", 
                 br(),
                 h2("Summary"),
-                h4("This tab runs R's and SQL code online"),
+                h4("This tab runs R and SQL online"),
                 actionButton("Con_D","Run SQL"),
                 actionButton("Con_R","Run R"),
                     textInput("query__01",label =  h3("Query (SQL)"), 
@@ -132,8 +143,36 @@ ui <- fluidPage(
                 dataTableOutput("Data_View"),
                 uiOutput("Dist_Data"),
                 dataTableOutput("ML_Data"),
+                dataTableOutput("ML_imp"),
                 plotOutput("ML_pl")
-                )
+                ),
+        tabItem(tabName = "DQ_T", 
+                h1("Data Quality"),
+                h4("This is one of the key functions that aid data governance by monitoring data to find exceptions undiscovered"),
+                hr(),
+                h2("Aviability"),
+                h4("Know if the information was uploaded in the correct time and place"),
+                textOutput("DQ_Fcha"),
+                hr(),
+                h2("Completeness"),
+                h4(""),
+                hr(),
+                h2("Validation"),
+                h4(),
+                hr(),
+                h2("Consistance"),
+                h4(),
+                hr(),
+                h2("Integrity"),
+                h4(),
+                hr(),
+                h2("Accuracy"),
+                h4(),
+                hr(),
+                h2()
+                
+        )
+        
         
         # tabItem(tabName = "SEASON", 
         #                    tabPanel("Seasonality",
@@ -215,6 +254,14 @@ server <- function(input, output) {
         },options = list(scrollX = TRUE))
         
     })
+    ################DQ
+    output$DQ_Fcha<-renderText({
+        paste0(as.character(Sys.time())," ",R.home())
+    })
+    
+    
+    
+    
     
     ###############SEASON################
     
@@ -507,7 +554,8 @@ server <- function(input, output) {
                           method = "rf",#input$ML_method,
                           #metric="Accuracy",
                           trControl=trainControl(method="repeatedcv", number=input$Run_cv, repeats=3, search="grid"),
-                          ntree=ntree))
+                          ntree=ntree,
+                          importance=T))
         
         #if(assertthat::is.error(rf)){rf<-NULL}
         
@@ -533,8 +581,13 @@ server <- function(input, output) {
         output$ML_Data<-renderDataTable({
             round(rpartFit[[4]],4)
         })
-        
+        output$ML_imp<-renderDataTable({
+            round(varImp(rpartFit)[[1]],3)
+        })
     })
+    
+    
+    
     
     
     if(FALSE){
