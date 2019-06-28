@@ -18,8 +18,8 @@
 #lapply(c(list.of.packages),function(x){try(library(x,character.only=TRUE),silent = T)}) 
 #s1<-function(X){X+3}
 text_eval<-function(a){
-    if(class(a)!="character"){return()}
-    eval(parse(text = a))
+  if(class(a)!="character"){return()}
+  eval(parse(text = a))
 }
 
 dtsts<-ls("package:datasets")
@@ -36,394 +36,365 @@ library(assertthat)
 library(FitUltD)
 library(caret)
 library(randomForest)
-
 library(shinythemes)
 library(shinyAce)
 library(RColorBrewer)
 library(qualV)
 library(colourpicker)
-# Define UI for application that draws a histogram
-#########Resumen
-# La primera tab nació como una forma de programar en R sin necesidad de tenerlo instalado en una computadora debido a las restricciones de uso de licencia libre de algunas empresas y aprovechar la integración natural que hay con sql (pues utilizaban MS Access para la administración de bases de datos)
-
-# La segunda es un proyecto personal, nació por la necesidad de ajustar un modelo paramétrico a una enfermedad que afectaba a dos sectores de la población en dos diferentes momentos y se convirtió en una nueva forma de ajustar distribuciones con ayuda de modelos clasificatorios de machine learning
-
-# La tercera existe para definir los mínimos requerimientos que debe tener una base de datos para aplicar modelos estadísticos, pues la empresa deseaba migrar información de valor y no gastar recursos en bases obsoletas
-
-# La cuarta surge como una respuesta rápida y sin costo a la visualización de una base de datos y su integración con modelos de ML
-#########
-
+library(ggcorrplot)
 
 ui <- fluidPage(
+  
+  useShinyjs(),
+  # extendShinyjs(text = "shinyjs.reset = function() {history.go(0)}"),
+  theme = shinytheme("cerulean"),
+  #dashboardPage(
+  # dashboardHeader(title = "iLightData", titleWidth = 800,
+  #                 dropdownMenu(
+  #                   messageItem(
+  #                     from = "Contact",
+  #                     message = paste("valc941226@gmail.com", "JC Del Valle", sep="\n"),
+  #                     icon = icon("life-ring"),
+  #                     time = Sys.Date()
+  #                   )
+  #                 )
+  # ),
+  # dashboardSidebar(
+  #   
+  #   sidebarMenu(
+  #     menuItem("Welcome", "Welcome",icon = icon("border-all")),
+  #     
+  #     menuItem("Query", "Query",icon = icon("border-all")),
+  #     #menuItem("Seasonality", "SEASON"),
+  #     menuItem("FitUltD", "My Package",icon = icon("chart")),
+  #     menuItem("Data Quality", "Data Quality",icon = icon("chart")),
+  #     menuItem("Machine Learning", "Machine Learning",icon = icon("chart")),
+  #     menuItem("More", "More",icon = icon("chart"))
+  #     
+  #   )
+  # ),
+  titlePanel(""),
+  h1("Data Visualization Dashboard"), hr(""),
+  mainPanel(
+    # within tabPanels(), define the pages for sidebar menu items
     
-    useShinyjs(),
-    # extendShinyjs(text = "shinyjs.reset = function() {history.go(0)}"),
-    theme = shinytheme("united"),
-    dashboardPage(
-        dashboardHeader(title = "iLightData", titleWidth = 800,
-                        dropdownMenu(
-                            messageItem(
-                                from = "Contact",
-                                message = paste("valc941226@gmail.com", "JC Del Valle", sep="\n"),
-                                icon = icon("life-ring"),
-                                time = Sys.Date()
-                            )
-                        )
-                        ),
-        
-        dashboardSidebar(
-            
-            sidebarMenu(
-                menuItem("Welcome", tabName = "wlcm",icon = icon("border-all")),
-                
-                menuItem("Query", tabName = "QUER",icon = icon("border-all")),
-                #menuItem("Seasonality", tabName = "SEASON"),
-                menuItem("FitUltD", tabName = "FITJC",icon = icon("chart")),
-                menuItem("Data Quality", tabName = "DQ_T",icon = icon("chart")),
-                menuItem("Machine Learning", tabName = "ML_C",icon = icon("chart")),
-                menuItem("More", tabName = "Functional",icon = icon("chart"))
-                
-            )
-        ),
-        dashboardBody(
-            # within tabitems(), define the pages for sidebar menu items
-            
-            tabItems(
-                tabItem(tabName = "wlcm",
-                        
-                        
-                        tabPanel( 
-                            
-                            # Name
-                            h4("iLightData Summary") ,
-                            
-                            # Only one zone for the home page
-                            column(12, offset=0, align="center" ,
-                                   
-                                   # Set the style of this page
-                                   style="
+    tabsetPanel(
+      tabPanel("Welcome",
+               
+               
+               
+               # Name
+               br(),
+               # Only one zone for the home page
+               column(12, offset=0, align="center" ,
+                      
+                      # Set the style of this page
+                      style="
 				background-image: url(my_image.png);
 				opacity: 0.8;
 				background-color: white;
 				margin-top: -20px;
 				width: 100%;
 				",
-                                   
-                                   # And write the welcome message
-                                   br(""),br(""),br(""),
-                                   helpText(strong("Welcome to iLightData"
-                                                   , style="color:black ; font-family: 'times'; font-size:50pt ; font-type:bold" ) ) ,
-                                   br(""),
-                                   helpText(strong(p("- iLightData's purpose is to accelerate automatable processes without cost, online and without complex installation processes." 
-                                                     , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                                   br(""),
-                                   helpText(strong(p("- Feel free to explore, to go deeper, visit www.github.com/jcval94 or email me: valc941226@gmail.com" 
-                                                     , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                                   br(""),
-                                   helpText(strong(p("- José Carlos Del Valle"
-                                                     , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                                   br(""),
-                                   br(""),
-                                   # helpText(strong(p("Content"
-                                   #                   , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                                   # br(""),
-                                   helpText(strong(p("- Query "
-                                                     , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                                   br(""),
-                                   helpText((p("The first tab was born to solve the problem of using R in a computer with user's restrictions or even a smartphone, taking advantage of SQL natural integration with R"
-                                                     , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                                   br(""),
-                                   helpText(strong(p("- FitUltD "
-                                                     , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                                   br(""),
-                                   helpText((p("FitUltD is a personal project. It exists due to the need to fit a parametric model to a disease that affected the population in two different phases, fitting distributions using machine learning clustering methods. Aplications:"
-                                                     , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                                   helpText((p("DNA methylation in human and mouse genome, distribution of growth rates among the individuals, ruin theory, claim insurance policies distribution, etc."
-                                               , style="color:black ; font-family: 'times'; font-size:16pt;text-align:left"))) ,
-                                   
-                                   br(""),
-                                   helpText(strong(p("- Data Quality"
-                                                     , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                                   br(""),
-                                   helpText((p("This tab exists to define the minimum requirements that a database must have to apply statistical inference (the customer wanted to migrate valuable information and not spend resources on obsolete datasets)"
-                                                     , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                                   br(""),
-                                   helpText(strong(p("- Machine Learning"
-                                                     , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                                   br(""),
-                                   helpText((p("This tab allows to visualize data during the fitting process of a machine learning model"
-                                               , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                                   br(""),
-                                   br(""),
-                                   br(""),
-                                   br(""),
-                                   helpText(strong(p("R is an Open Source language for statistical computing. No license cost, adapted for any business."
-                                               , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                                   br(""),
-                                   
-                                   #img(scr="https://www.rstudio.com/wp-content/uploads/2018/10/RStudio-Logo.png"),
-                                   
-                                   br(""),br(""),br(""),br(""),br(""),br(""),br(""),br(""),br(""),br("")
-                                   
-                                   
-                                   #Close column
-                            )
-                            
-                            #Close the tabPanel
-                        ),
-                        
-                        h5("")
-                        
-                ),
-        tabItem(tabName = "QUER", 
-                br(),
-                h2("Summary"),
-                h4("This tab runs R and SQL online"),
-                actionButton("Con_D","Run SQL"),
-                actionButton("Con_R","Run R"),
-                downloadButton("desc_qr","Download","csv"),
-                    textInput("query__01",label =  h3("Query (SQL)"), 
-                              value = "SELECT * FROM DF WHERE Species = \"virginica\" ",
-                              width = "700px"),
-                textInput("query__02",label =  h3("Query (R)"), 
-                          value = "table(DF[[\"Species\"]])",
-                          width = "700px"),
-                h4("You can write any code accepted by R whose output be a data.frame:"),
-                h5("importance(randomForest(Ozone ~ ., data=airquality, mtry=3,
+                      
+                      # And write the welcome message
+                      br(""),br(""),br(""),
+                      helpText(strong("Welcome to iLightData"
+                                      , style="color:black ; font-family: 'times'; font-size:50pt ; font-type:bold" ) ) ,
+                      br(""),
+                      helpText(strong(p("- iLightData's purpose is to accelerate automatable procedures without cost, online and without complex installation processes." 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      br(""),
+                      helpText(strong(p("- Feel free to explore, to go deeper visit www.github.com/jcval94 or email me: valc941226@gmail.com" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      br(""),
+                      helpText(strong(p("- José Carlos Del Valle"
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      br(""),
+                      br(""),
+                      # helpText(strong(p("Content"
+                      #                   , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      # br(""),
+                      helpText(strong(p("- Query "
+                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      br(""),
+                      helpText((p("The first tab was born to solve the problem of using R in a computer with user's restrictions or even a smartphone, taking advantage of SQL natural integration with R"
+                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      br(""),
+                      helpText(strong(p("- FitUltD "
+                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      br(""),
+                      helpText((p("FitUltD is a personal project. It exists due to the need to fit a parametric model to a disease that affected the population in two different phases, fitting distributions using machine learning clustering methods. Aplications:"
+                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      helpText((p("DNA methylation in human and mouse genome, distribution of growth rates among the individuals, ruin theory, claim insurance policies distribution, etc."
+                                  , style="color:black ; font-family: 'times'; font-size:16pt;text-align:left"))) ,
+                      
+                      br(""),
+                      helpText(strong(p("- Data Quality"
+                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      br(""),
+                      helpText((p("This tab exists to define the minimum requirements that a database must have to apply statistical inference (the customer wanted to migrate valuable information and not spend resources on obsolete datasets)"
+                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      br(""),
+                      helpText(strong(p("- Machine Learning"
+                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      br(""),
+                      helpText((p("This tab allows to visualize data during the fitting process of a machine learning model"
+                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      br(""),
+                      br(""),
+                      br(""),
+                      br(""),
+                      helpText(strong(p("R is an Open Source language for statistical computing. No license cost, adapted for any business."
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      br("")
+                      
+                      #img(scr="https://www.rstudio.com/wp-content/uploads/2018/10/RStudio-Logo.png"),
+                      
+                      
+                      #Close column
+               ),
+               br(""),br(""),br(""),br(""),br(""),br(""),br(""),br(""),br(""),br("")
+               
+               
+      ),
+      tabPanel("Query", 
+               br(),
+               h2("Summary"),
+               h4("This tab runs R and SQL online"),
+               actionButton("Con_D","Run SQL"),
+               actionButton("Con_R","Run R"),
+               downloadButton("desc_qr","Download","csv"),
+               textInput("query__01",label =  h3("Query (SQL)"), 
+                         value = "SELECT * FROM DF WHERE Species = \"virginica\" ",
+                         width = "700px"),
+               textInput("query__02",label =  h3("Query (R)"), 
+                         value = "table(DF[[\"Species\"]])",
+                         width = "700px"),
+               h4("You can write any code accepted by R whose output be a data.frame:"),
+               h5("importance(randomForest(Ozone ~ ., data=airquality, mtry=3,
                         importance=TRUE, na.action=na.omit))"),
-                #textOutput("query_r"),
-                
-                hr(),
-                dataTableOutput("DLS")
-        ),
-        tabItem(tabName = "FITJC", 
-                h2("My package"),
-                h4("Tool to fit distributions (Just be careful with overfitting)"),
-                textInput("SIM_Dist",label =  h3("Choose a modal or multimodal distribution."), 
-                          value = "c(rnorm(1000,0,1),rgamma(1000,9,2))",
-                          width = "600px"),
-                actionButton("SIM_FT","Simulate"),
-                actionButton("FIT_FT","Fit"),
-                fileInput("datafile", "Choose File",
-                          multiple = FALSE,
-                          accept = c("text/csv",
-                                     "text/comma-separated-values,text/plain",
-                                     ".csv")),
-                actionButton("FIT_FTU","Fit CSV"),
-                plotOutput("Sim_plot"),
-                withSpinner(dataTableOutput("Sim_sum"),type = 6),
-                plotOutput("Fit_plot"),
-                dataTableOutput("Fit_sum"),
-                plotOutput("Fit_plot2") 
-                
-                # withSpinner(plotOutput("Fit_plot"),type = 6)
-                
-                ),
-        tabItem(tabName = "ML_C", 
-                h2("Machine Learning Tab"),
-                uiOutput("datasets"),
-                #selectInput("Var_est","Select Dataset",choices = c("Year","Decade"),multiple = F),
-                
-                selectInput("ML_method","Choose a ML model",
-                            choices = c("rf"),
-                            selected = "rf"),
-                uiOutput("Data_Form"),
-                uiOutput("Paramss"),
-                uiOutput("Train_Split"),
-                
-                actionButton("select_data","View data"),
-                actionButton("Run_ml","Run ML"),
-                
-                sliderInput("Run_cv", label = "Cross Val",
-                            min = 2,max = 20,2
-                ),
-                actionButton("",""),
-                
-                dataTableOutput("Data_View"),
-                uiOutput("Dist_Data"),
-                dataTableOutput("ML_Data"),
-                dataTableOutput("ML_imp"),
-                plotOutput("ML_pl")
-                ),
-        tabItem(tabName = "DQ_T", 
-                
-                tabPanel(
-                  
-                    h4("imary"),
-
-                    # Only one zone for the home page
-                    column(12, offset=0, align="center" ,
-
-                           # Set the style of this page
-                           style="
+               #textOutput("query_r"),
+               
+               hr(),
+               dataTableOutput("DLS")
+      ),
+      tabPanel("My Package", 
+               h2("My package"),
+               h4("Tool to fit distributions (Just be careful with overfitting)"),
+               textInput("SIM_Dist",label =  h3("Choose a modal or multimodal distribution."), 
+                         value = "c(rnorm(1000,0,1),rgamma(1000,9,2))",
+                         width = "600px"),
+               actionButton("SIM_FT","Simulate"),
+               actionButton("FIT_FT","Fit"),
+               fileInput("datafile", "Choose File",
+                         multiple = FALSE,
+                         accept = c("text/csv",
+                                    "text/comma-separated-values,text/plain",
+                                    ".csv")),
+               actionButton("FIT_FTU","Fit CSV"),
+               plotOutput("Sim_plot"),
+               withSpinner(dataTableOutput("Sim_sum"),type = 6),
+               withSpinner(plotOutput("Fit_plot"),type = 6),
+               dataTableOutput("Fit_sum"),
+               plotOutput("Fit_plot2") 
+               
+               # withSpinner(plotOutput("Fit_plot"),type = 6)
+               
+      ),
+      tabPanel("Machine Learning", 
+               h2("Machine Learning Tab"),
+               uiOutput("datasets"),
+               #selectInput("Var_est","Select Dataset",choices = c("Year","Decade"),multiple = F),
+               
+               selectInput("ML_method","Choose a ML model",
+                           choices = c("Random Forest"),
+                           selected = "Random Forest"),
+               uiOutput("Data_Form"),
+               uiOutput("Paramss"),
+               uiOutput("Train_Split"),
+               
+               actionButton("select_data","View data"),
+               actionButton("Run_ml","Run ML"),
+               
+               sliderInput("Run_cv", label = "Cross Val",
+                           min = 2,max = 20,2
+               ),
+               actionButton("",""),
+               
+               dataTableOutput("Data_View"),
+               uiOutput("Dist_Data"),
+               dataTableOutput("ML_Data"),
+               dataTableOutput("ML_imp"),
+               plotOutput("ML_pl")
+      ),
+      tabPanel("Data Quality", 
+               br(),
+               tabPanel(
+                 
+                 br(),
+                 
+                 # Only one zone for the home page
+                 column(12, offset=0, align="center" ,
+                        
+                        # Set the style of this page
+                        style="
 				background-image: url(my_image.png);
 				opacity: 0.8;
 				background-color: white;
 				margin-top: -20px;
 				width: 100%;
 				",
-
-                           # And write the welcome message
-                           br(""),br(""),br(""),
-                           helpText(strong("Data Quality"
-                                           , style="color:black ; font-family: 'times'; font-size:50pt ; font-type:bold" ) ) ,
-                           br(""),
-                           helpText(strong(p("This is one of the key functions that aid data governance by monitoring data to find exceptions undiscovered"
-                                             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                           br(""),
-
-                           br(""),
-                           helpText(strong(p("Aviability"
-                                             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                           br(""),
-                           helpText(strong(p("Know if the information was uploaded in the correct time and place"
-                                             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                           #textOutput("DQ_Fcha"),
-                           br(""),
-
-                           br(""),br(""),br(""),br(""),br(""),
-                           helpText(strong(p("Completeness"
-                                             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                           br(""),
-                           helpText(strong(p("Corroborate that the number of rows and columns is appropriate by specifying it in the corresponding file"
-                                             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                         #textOutput("DQ_Fcha"),
-                           br(""),
-
-                           br(""),br(""),br(""),br(""),br(""),
-                           helpText(strong(p("Consistance"
-                                             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                           br(""),
-                           helpText(strong(p("Duplicate data, comparison of the data in two different tables"
-                                             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-#                           textOutput("DQ_Fcha"),
-                           br(""),
-#                            
-                           br(""),br(""),br(""),br(""),br(""),
-                           helpText(strong(p("Integrity"
-                                             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                           br(""),
-                           helpText(strong(p("Calculations' replication and application of functions and transformations between columns"
-                                             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                           #textOutput("DQ_Fcha"),
-                           br(""), br(""),br(""),br(""),br(""),br(""),
-                           helpText(strong(p("Accuracy"
-                                             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                           br(""),
-                           helpText(strong(p("Data volume through the time, sensibility between values, time series analysis up to n observations"
-                                             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                           textOutput("DQ_Fcha")
-
-
-                           #Close column
-                    )
-
-                    #Close the tabPanel
-                )
-                
-                
-        ),
-tabItem(tabName = "Functional", 
-        
-        div(
-          id = "sign_in_panel",
-          class = "auth_panel",
-          h1(
-            class = "text-center",
-            style = "padding-top: 0;",
-            "Sign In"
-          ),
-          h3("Try email: Test & password: 1234"),
-          br(),
-          div(
-            class = "form-group",
-            style = "width: 100%",
-            tags$label(
-              tagList(icon("envelope"), "email/user"),
-              `for` = "email"
-            ),
-            tags$input(
-              id = "email",
-              type = "text",
-              class = "form-control",
-              value = ""
-            )
-          ),
-          br(),
-          div(
-            class = "form-group",
-            style = "width: 100%",
-            tags$label(
-              tagList(icon("unlock-alt"), "password"),
-              `for` = "password"
-            ),
-            tags$input(
-              id = "password",
-              type = "password",
-              class = "form-control",
-              value = "",
-              placeholder = "**********"
-            )
-          ),
-          br(),
-          br(),
-          div(
-            style = "text-align: center;",
-            # tags$button(
-            #   id = "submit_sign_in",
-            #   style = "color: white; width: 100%;",
-            #   type = "button",
-            #   class = "btn btn-primary btn-lg",
-            #   "Sign In"
-            # ),
-            actionButton(inputId = "submit_sign_in",
-                         label = "Sing In"
-            ),
-            br(),
-            br(),
-            br()
-          )
-        ),
-        
-        hidden(fluidRow(
-          id = "main",
-          column(
-            12,
-            div(
-              style = "padding: 50px",
-              h1("Restrict content"),
-              br(),
-              br(),
-              h3("You can protect the content from other users")
-            )
-          )
-        ))
-        
-        
-)
-
-        
-        
-        # tabItem(tabName = "SEASON", 
-        #                    tabPanel("Seasonality",
-        #                        selectInput("Var_est","Select variable",choices = c("Year","Decade"),multiple = F),
-        #                        #actionButton("Var_est_subg","Seleccionar subgrupos"),
-        #                        uiOutput("filtro_avanzado_est"),
-        #                        br(),
-        #                        actionButton("est_ejec","Run"),
-        #                        downloadButton("est_downl","Download"),
-        #                        uiOutput("plot_avanzado_est")
-        #                    
-        #                    , icon = icon("chart-line")
-        #                    
-        #                    )
-        #                    
-        #         
-        # )
-        )
-        
-        )
+                        
+                        # And write the welcome message
+                        br(""),br(""),br(""),
+                        helpText(strong("Data Quality"
+                                        , style="color:black ; font-family: 'times'; font-size:50pt ; font-type:bold" ) ) ,
+                        br(""),
+                        helpText(strong(p("This is one of the key functions that aid data governance by monitoring data to find exceptions undiscovered"
+                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                        br(""),
+                        
+                        br(""),
+                        helpText(strong(p("Aviability"
+                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                        br(""),
+                        helpText(strong(p("Know if the information was uploaded in the correct time and place"
+                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                        #textOutput("DQ_Fcha"),
+                        br(""),
+                        
+                        br(""),br(""),br(""),br(""),br(""),
+                        helpText(strong(p("Completeness"
+                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                        br(""),
+                        helpText(strong(p("Corroborate that the number of rows and columns is appropriate by specifying it in the corresponding file"
+                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                        #textOutput("DQ_Fcha"),
+                        br(""),
+                        
+                        br(""),br(""),br(""),br(""),br(""),
+                        helpText(strong(p("Consistance"
+                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                        br(""),
+                        helpText(strong(p("Duplicate data, comparison of the data in two different tables"
+                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                        #                           textOutput("DQ_Fcha"),
+                        br(""),
+                        #                            
+                        br(""),br(""),br(""),br(""),br(""),
+                        helpText(strong(p("Integrity"
+                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                        br(""),
+                        helpText(strong(p("Calculations' replication and application of functions and transformations between columns"
+                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                        #textOutput("DQ_Fcha"),
+                        br(""), br(""),br(""),br(""),br(""),br(""),
+                        helpText(strong(p("Accuracy"
+                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                        br(""),
+                        helpText(strong(p("Data volume through the time, sensibility between values, time series analysis up to n observations"
+                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                        textOutput("DQ_Fcha")
+                        
+                        
+                        #Close column
+                 )
+                 
+                 #Close the tabPanel
+               )
+               
+               
+      ),
+      tabPanel("More...", 
+               
+               div(
+                 id = "sign_in_panel",
+                 class = "auth_panel",
+                 h2("Users Management"),
+                 h1(
+                   class = "text-center",
+                   style = "padding-top: 0;",
+                   "Sign In"
+                 ),
+                 h3("Try email: Test & password: 1234"),
+                 br(),
+                 div(
+                   class = "form-group",
+                   style = "width: 100%",
+                   tags$label(
+                     tagList(icon("envelope"), "email/user"),
+                     `for` = "email"
+                   ),
+                   tags$input(
+                     id = "email",
+                     type = "text",
+                     class = "form-control",
+                     value = ""
+                   )
+                 ),
+                 br(),
+                 div(
+                   class = "form-group",
+                   style = "width: 100%",
+                   tags$label(
+                     tagList(icon("unlock-alt"), "password"),
+                     `for` = "password"
+                   ),
+                   tags$input(
+                     id = "password",
+                     type = "password",
+                     class = "form-control",
+                     value = "",
+                     placeholder = "**********"
+                   )
+                 ),
+                 br(),
+                 br(),
+                 div(
+                   style = "text-align: center;",
+                   # tags$button(
+                   #   id = "submit_sign_in",
+                   #   style = "color: white; width: 100%;",
+                   #   type = "button",
+                   #   class = "btn btn-primary btn-lg",
+                   #   "Sign In"
+                   # ),
+                   actionButton(inputId = "submit_sign_in",
+                                label = "Sing In"
+                   ),
+                   br(),
+                   br(),
+                   br()
+                 )
+               ),
+               
+               hidden(fluidRow(
+                 id = "main",
+                 column(
+                   12,
+                   div(
+                     style = "padding: 50px",
+                     
+                     # Correlation matrix
+                     uiOutput("datasets2"),
+                     actionButton("QVW","Quick View"),
+                     plotOutput("Corrrr"),
+                     plotOutput("Vars")
+                     
+                   )
+                 )
+               ))
+               
+               
+      )
+      
+      
+      
     )
+    
+  )
+  #)
 )
 
 #######################################################
@@ -431,489 +402,529 @@ tabItem(tabName = "Functional",
 #######################################################
 # Define server logic required to draw a histogram
 server <- function(input, output,session) {
+  
+  output$query_r<-renderPrint({"Try kmeans(DF[,-5],3)[[2]]"})
+  
+  output$DLS<-renderDataTable({
+    data(iris)
+    iris
+  },options = list(scrollX = TRUE))
+  
+  
+  
+  
+  observeEvent(input$Con_D,{
+    if(exists("Data_server_")){
+      DF<-Data_server_
+    }else{
+      data(iris)
+      DF<-iris
+    }
     
-    output$query_r<-renderPrint({"Try kmeans(DF[,-5],3)[[2]]"})
+    consulta__01<-input$query__01
+    
+    qqry<<-try(sqldf::sqldf(consulta__01))
+    if(assertthat::is.error(qqry)){
+      qqry<<-data.frame(Error=as.character(qqry))
+    }
+    
     
     output$DLS<-renderDataTable({
-        data(iris)
-        iris
+      qqry
     },options = list(scrollX = TRUE))
     
     
-    
-    
-    observeEvent(input$Con_D,{
-        if(exists("Data_server_")){
-            DF<-Data_server_
-        }else{
-            data(iris)
-            DF<-iris
-        }
-        
-        consulta__01<-input$query__01
-        
-        qqry<<-try(sqldf::sqldf(consulta__01))
-        if(assertthat::is.error(qqry)){
-            qqry<<-data.frame(Error=as.character(qqry))
-        }
-        
-        
-        output$DLS<-renderDataTable({
-            qqry
-        },options = list(scrollX = TRUE))
-        
-        
-    })
-    observeEvent(input$Con_R,{
-        if(exists("Data_server_")){
-            DF<-Data_server_
-        }else{
-            data(iris)
-            DF<-iris
-        }
-        
-        consulta__02<-input$query__02
-        consulta__02<-paste0("DF<-iris;",consulta__02)
-        #consulta__01<-input$query__01
-        qqry<<-try(text_eval(consulta__02))
-        #qqry<-try(sqldf::sqldf(consulta__01))
-        
-        if(assertthat::is.error(qqry)){
-            qqry<<-data.frame(Error=as.character(qqry))
-        }
-        if(!"data.frame" %in% class(qqry)){
-            qqry<<-as.data.frame(qqry)
-        }
-        output$DLS<-renderDataTable({
-            qqry
-        },options = list(scrollX = TRUE))
-        
-    })
-    ################DQ
-    output$DQ_Fcha<-renderText({
-        paste0(as.character(Sys.time())," ",R.home())
-    })
-    
-    
-    
-    
-    
-    output$desc_qr <- downloadHandler(
-        filename = function() {
-            paste("qqry",".csv", sep = "")
-        },
-        content = function(file) {
-            if(!exists("qqry")){
-                write.csv(iris
-                          , file, row.names = FALSE)
-            }else{
-                write.csv(qqry, file, row.names = FALSE)
-            }
-        },
-        contentType="text/csv"
-    )
-    
-    
-    ###############SEASON################
-    
-    # observeEvent(input$est_ejec,{
-    #     
-    #     Data_server_<-sunspots
-    #     Data_server_<-as.data.frame(Data_server_)
-    #     Data_server_[["Year"]]<-as.factor(rep(1749:(1749+234),each=12))
-    #     Data_server_[["Decade"]]<-as.factor(c(rep(1:23,each=120),rep(24,60)))
-    #     
-    #     names(Data_server_)[1]<-"Data_server_"
-    #     
-    #     if(!exists("Data_server_")){
-    #         output$plot_avanzado_est<-renderText({
-    #             "No Data"
-    #         })
-    #     }else{
-    #         #Todos los filtros nuevos creados
-    #         Variables<<-input$Var_est
-    #         inpts_nvs<-paste0("estttt",Variables)
-    #         
-    #         Variables_selec<-purrr::map(inpts_nvs,~input[[.x]])
-    #         
-    #         if(!is.null(Variables_selec[[1]])){
-    #             #Ahora aplicaremos todos los filtros
-    #             TF_Data_server_<-purrr::map(1:length(Variables),~Data_server_[[Variables[.x]]] %in% Variables_selec[[.x]])
-    #             
-    #             if(length(TF_Data_server_)>1)
-    #                 subbbb<-oper(TF_Data_server_,op = "AND")
-    #             else
-    #                 subbbb<-TF_Data_server_[[1]]
-    #             
-    #             Data__est<-Data_server_[subbbb,]
-    #         }else{
-    #             Data__est<<-Data_server_
-    #         }
-    #         
-    #         if(is.null(Variables_selec[[1]])){
-    #             PA_T10<-as.data.frame(table(Data__est[[Variables]]))
-    #             Variables_selec<-list(head(PA_T10[order(-PA_T10$Freq),"Var1"],10))
-    #         }
-    #         
-    #         # Variables<<-Variables
-    #         # Variables_selec<<-Variables_selec
-    #         Variables_selec[[1]]<<-Variables_selec[[1]][nchar(as.character(Variables_selec[[1]]))>0]
-    #         
-    #         Tablas_Est_dwnld<<-list()
-    #         pw<-0
-    #         #print(Variables_selec[[1]])
-    #         for (Contt in 1:length(Variables_selec[[1]])) {
-    #             pw<-pw+1
-    #             rr<-Contt
-    #             local({
-    #                 print(Variables_selec[[1]][rr])
-    #                 
-    #                 Info_EST<-try(Fechas(Clasificacion = Variables,subgrupo = Variables_selec[[1]][rr],PA = Data__est))
-    #                 
-    #                 if(is.null(Info_EST) | is.error(Info_EST)){
-    #                     Info_EST<-NULL
-    #                     output[[paste0("Est_pl",rr)]]<-renderPlot({
-    #                         Info_EST
-    #                     })
-    #                     output[[paste0("Est_tl",rr)]]<-renderDataTable({
-    #                         data.frame(Info="No hay suficientes datos para realizar un análisis completo")
-    #                     },options = list(scrollX = TRUE))
-    #                     
-    #                 }else{
-    #                     
-    #                     Ploteos_Est<-Info_EST[[1]]
-    #                     Tablas_Est<-Info_EST[[2]]
-    #                     Tablas_Est_dwnld[[pw]]<<-Tablas_Est[[1]]
-    #                     
-    #                     Pts_inf<-list(Tablas_Est[[1]][c(diff(Tablas_Est[[1]][["Clu_n"]])!=0,F),])
-    #                     #print(paste0("Est_pl",rr))
-    #                     output[[paste0("Est_pl",rr)]]<-renderPlot({
-    #                         Ploteos_Est[[1]]
-    #                     })
-    #                     
-    #                     output[[paste0("Est_tl",rr)]]<-renderDataTable({
-    #                         names(Tablas_Est[[1]])[2]<-"Registros Totales"
-    #                         Tablas_Est[[1]][,-c(6:8,10)]
-    #                         #print(head(Tablas_Est[[rr]]))
-    #                     },options = list(scrollX = TRUE))
-    #                     
-    #                     output[[paste0("Est_tl_ifx",rr)]]<-renderDataTable({
-    #                         names(Pts_inf[[1]])[2]<-"Registros Totales"
-    #                         Pts_inf[[1]][,-c(6:8,10)]
-    #                     },options = list(scrollX = TRUE))
-    #                     
-    #                 }
-    #             })
-    #         }
-    #         #print(paste0("Output definido ", length(Variables_selec[[1]])))
-    #         
-    #         output$plot_avanzado_est<-renderUI({
-    #             vars_output_list <- lapply(1:length(Variables_selec[[1]]), function(i) {
-    #                 plotname <- paste0("Est_pl",i)
-    #                 tablaname <- paste0("Est_tl",i)
-    #                 tablaname2 <- paste0("Est_tl_ifx",i)
-    #                 
-    #                 list(dataTableOutput(tablaname),
-    #                      plotOutput(plotname, height = 640, width = 810),
-    #                      dataTableOutput(tablaname2))
-    #                 
-    #             })
-    #             do.call(tagList, vars_output_list)
-    #         })
-    #         
-    #         
-    #     }
-    # })
-    
-    ###############FIT
-    output$Sim_sum<-renderDataTable({data.frame()})
-    
-    filedata <- reactive({
-        infile <- input$datafile
-        if (is.null(infile)) {
-            # User has not uploaded a file yet
-            return(NULL)
-        }
-        read.csv(infile$datapath)
-    })
-    
-    observeEvent(input$SIM_FT,{
-        sim<-text_eval(input$SIM_Dist)
-        
-        df <- data.frame(x <- sim,
-                         group <- sample(LETTERS[1:5], size = length(sim), replace = T))
-        
-        p <- ggplot(df, aes(x)) + 
-            geom_histogram(aes(y = ..density..), alpha = 0.7, fill = "#333333") + 
-            geom_density(fill = "#ff4d4d", alpha = 0.35) + 
-            theme(panel.background = element_rect(fill = '#ffffff')) + 
-            ggtitle("Density with Histogram")
-        
-        output$Sim_plot <- renderPlot({
-            p
-        })
-        output$Sim_sum<-renderDataTable({
-            data.frame(Min=round(min(sim,na.rm = T),4),
-                       Median=round(median(sim,na.rm = T),4),
-                       Mean=round(mean(sim,na.rm = T),4),
-                       Max=round(max(sim,na.rm = T),4),
-                       SD=round(sd(sim,na.rm = T),4))
-        },options = list(scrollX = TRUE))
-        
-        
-        observeEvent(input$FIT_FT,{
-            
-            sim<-text_eval(input$SIM_Dist)
-            
-            A<-FitUltD::FDistUlt(sim,plot = T,subplot = T,crt = 2)
-            
-            output$Fit_plot <- renderPlot({
-                A[[4]][[1]]
-            })
-            AA<-A[[3]][,1:4]
-            if(nrow(AA)>4){AA[,5]<-"Overfit"}
-            output$Fit_sum<-renderDataTable({
-                AA
-            },options = list(scrollX = TRUE))
-            
-            output$Fit_plot2 <- renderPlot({
-                if(nrow(AA)>1){A[[4]][[2]]}
-            })
-            
-        })
-        
-    })
-    
-    observeEvent(input$FIT_FTU,{
-      fl<-filedata()
-      if(ncol(fl)>1){
-        output$Sim_sum<-renderDataTable({
-          data.frame("File with more than 1 columns")
-        },options = list(scrollX = TRUE))
-      }else{
-        sim<-na.omit(as.numeric(fl[[1]]))
-        
-        df <- data.frame(x <- sim,
-                         group <- sample(LETTERS[1:5], size = length(sim), replace = T))
-        
-        p <- ggplot(df, aes(x)) + 
-            geom_histogram(aes(y = ..density..), alpha = 0.7, fill = "#333333") + 
-            geom_density(fill = "#ff4d4d", alpha = 0.35) + 
-            theme(panel.background = element_rect(fill = '#ffffff')) + 
-            ggtitle("Density with Histogram")
-        
-        output$Sim_plot <- renderPlot({
-            p
-        })
-        output$Sim_sum<-renderDataTable({
-            data.frame(Min=round(min(sim,na.rm = T),4),
-                       Median=round(median(sim,na.rm = T),4),
-                       Mean=round(mean(sim,na.rm = T),4),
-                       Max=round(max(sim,na.rm = T),4),
-                       SD=round(sd(sim,na.rm = T),4))
-        },options = list(scrollX = TRUE))
-        
-            
-            A<-FitUltD::FDistUlt(sim,plot = T,subplot = T,crt = 2)
-            
-            output$Fit_plot <- renderPlot({
-                A[[4]][[1]]
-            })
-            AA<-A[[3]][,1:4]
-            if(nrow(AA)>4){AA[,5]<-"Overfit"}
-            output$Fit_sum<-renderDataTable({
-                AA
-            },options = list(scrollX = TRUE))
-            
-            output$Fit_plot2 <- renderPlot({
-                if(nrow(AA)>1){A[[4]][[2]]}
-            })
-            
-    
-            
-            
+  })
+  observeEvent(input$Con_R,{
+    if(exists("Data_server_")){
+      DF<-Data_server_
+    }else{
+      data(iris)
+      DF<-iris
     }
-            })
+    
+    consulta__02<-input$query__02
+    consulta__02<-paste0("DF<-iris;",consulta__02)
+    #consulta__01<-input$query__01
+    qqry<<-try(text_eval(consulta__02))
+    #qqry<-try(sqldf::sqldf(consulta__01))
+    
+    if(assertthat::is.error(qqry)){
+      qqry<<-data.frame(Error=as.character(qqry))
+    }
+    if(!"data.frame" %in% class(qqry)){
+      qqry<<-as.data.frame(qqry)
+    }
+    output$DLS<-renderDataTable({
+      qqry
+    },options = list(scrollX = TRUE))
+    
+  })
+  ################DQ
+  output$DQ_Fcha<-renderText({
+    paste0(as.character(Sys.time())," ",R.home())
+  })
+  
+  
+  
+  
+  
+  output$desc_qr <- downloadHandler(
+    filename = function() {
+      paste("qqry",".csv", sep = "")
+    },
+    content = function(file) {
+      if(!exists("qqry")){
+        write.csv(iris
+                  , file, row.names = FALSE)
+      }else{
+        write.csv(qqry, file, row.names = FALSE)
+      }
+    },
+    contentType="text/csv"
+  )
+  
+  
+  ###############SEASON################
+  
+  # observeEvent(input$est_ejec,{
+  #     
+  #     Data_server_<-sunspots
+  #     Data_server_<-as.data.frame(Data_server_)
+  #     Data_server_[["Year"]]<-as.factor(rep(1749:(1749+234),each=12))
+  #     Data_server_[["Decade"]]<-as.factor(c(rep(1:23,each=120),rep(24,60)))
+  #     
+  #     names(Data_server_)[1]<-"Data_server_"
+  #     
+  #     if(!exists("Data_server_")){
+  #         output$plot_avanzado_est<-renderText({
+  #             "No Data"
+  #         })
+  #     }else{
+  #         #Todos los filtros nuevos creados
+  #         Variables<<-input$Var_est
+  #         inpts_nvs<-paste0("estttt",Variables)
+  #         
+  #         Variables_selec<-purrr::map(inpts_nvs,~input[[.x]])
+  #         
+  #         if(!is.null(Variables_selec[[1]])){
+  #             #Ahora aplicaremos todos los filtros
+  #             TF_Data_server_<-purrr::map(1:length(Variables),~Data_server_[[Variables[.x]]] %in% Variables_selec[[.x]])
+  #             
+  #             if(length(TF_Data_server_)>1)
+  #                 subbbb<-oper(TF_Data_server_,op = "AND")
+  #             else
+  #                 subbbb<-TF_Data_server_[[1]]
+  #             
+  #             Data__est<-Data_server_[subbbb,]
+  #         }else{
+  #             Data__est<<-Data_server_
+  #         }
+  #         
+  #         if(is.null(Variables_selec[[1]])){
+  #             PA_T10<-as.data.frame(table(Data__est[[Variables]]))
+  #             Variables_selec<-list(head(PA_T10[order(-PA_T10$Freq),"Var1"],10))
+  #         }
+  #         
+  #         # Variables<<-Variables
+  #         # Variables_selec<<-Variables_selec
+  #         Variables_selec[[1]]<<-Variables_selec[[1]][nchar(as.character(Variables_selec[[1]]))>0]
+  #         
+  #         Tablas_Est_dwnld<<-list()
+  #         pw<-0
+  #         #print(Variables_selec[[1]])
+  #         for (Contt in 1:length(Variables_selec[[1]])) {
+  #             pw<-pw+1
+  #             rr<-Contt
+  #             local({
+  #                 print(Variables_selec[[1]][rr])
+  #                 
+  #                 Info_EST<-try(Fechas(Clasificacion = Variables,subgrupo = Variables_selec[[1]][rr],PA = Data__est))
+  #                 
+  #                 if(is.null(Info_EST) | is.error(Info_EST)){
+  #                     Info_EST<-NULL
+  #                     output[[paste0("Est_pl",rr)]]<-renderPlot({
+  #                         Info_EST
+  #                     })
+  #                     output[[paste0("Est_tl",rr)]]<-renderDataTable({
+  #                         data.frame(Info="No hay suficientes datos para realizar un análisis completo")
+  #                     },options = list(scrollX = TRUE))
+  #                     
+  #                 }else{
+  #                     
+  #                     Ploteos_Est<-Info_EST[[1]]
+  #                     Tablas_Est<-Info_EST[[2]]
+  #                     Tablas_Est_dwnld[[pw]]<<-Tablas_Est[[1]]
+  #                     
+  #                     Pts_inf<-list(Tablas_Est[[1]][c(diff(Tablas_Est[[1]][["Clu_n"]])!=0,F),])
+  #                     #print(paste0("Est_pl",rr))
+  #                     output[[paste0("Est_pl",rr)]]<-renderPlot({
+  #                         Ploteos_Est[[1]]
+  #                     })
+  #                     
+  #                     output[[paste0("Est_tl",rr)]]<-renderDataTable({
+  #                         names(Tablas_Est[[1]])[2]<-"Registros Totales"
+  #                         Tablas_Est[[1]][,-c(6:8,10)]
+  #                         #print(head(Tablas_Est[[rr]]))
+  #                     },options = list(scrollX = TRUE))
+  #                     
+  #                     output[[paste0("Est_tl_ifx",rr)]]<-renderDataTable({
+  #                         names(Pts_inf[[1]])[2]<-"Registros Totales"
+  #                         Pts_inf[[1]][,-c(6:8,10)]
+  #                     },options = list(scrollX = TRUE))
+  #                     
+  #                 }
+  #             })
+  #         }
+  #         #print(paste0("Output definido ", length(Variables_selec[[1]])))
+  #         
+  #         output$plot_avanzado_est<-renderUI({
+  #             vars_output_list <- lapply(1:length(Variables_selec[[1]]), function(i) {
+  #                 plotname <- paste0("Est_pl",i)
+  #                 tablaname <- paste0("Est_tl",i)
+  #                 tablaname2 <- paste0("Est_tl_ifx",i)
+  #                 
+  #                 list(dataTableOutput(tablaname),
+  #                      plotOutput(plotname, height = 640, width = 810),
+  #                      dataTableOutput(tablaname2))
+  #                 
+  #             })
+  #             do.call(tagList, vars_output_list)
+  #         })
+  #         
+  #         
+  #     }
+  # })
+  
+  ###############FIT
+  output$Sim_sum<-renderDataTable({data.frame()})
+  
+  filedata <- reactive({
+    infile <- input$datafile
+    if (is.null(infile)) {
+      # User has not uploaded a file yet
+      return(NULL)
+    }
+    read.csv(infile$datapath)
+  })
+  
+  observeEvent(input$SIM_FT,{
+    sim<-text_eval(input$SIM_Dist)
+    
+    df <- data.frame(x <- sim,
+                     group <- sample(LETTERS[1:5], size = length(sim), replace = T))
+    
+    p <- ggplot(df, aes(x)) + 
+      geom_histogram(aes(y = ..density..), alpha = 0.7, fill = "#333333") + 
+      geom_density(fill = "#ff4d4d", alpha = 0.35) + 
+      theme(panel.background = element_rect(fill = '#ffffff')) + 
+      ggtitle("Density with Histogram")
+    
+    output$Sim_plot <- renderPlot({
+      p
+    })
+    output$Sim_sum<-renderDataTable({
+      data.frame(Min=round(min(sim,na.rm = T),4),
+                 Median=round(median(sim,na.rm = T),4),
+                 Mean=round(mean(sim,na.rm = T),4),
+                 Max=round(max(sim,na.rm = T),4),
+                 SD=round(sd(sim,na.rm = T),4))
+    },options = list(scrollX = TRUE))
     
     
-    #####################CARET ML##########################
-    
-    output$datasets <- renderUI(
-        selectInput("Data", label = "Select Dataset", 
-                           choices = dtsts[classes %in% "data.frame"], 
-                           selected = "",multiple = F)
-    )
-    
-    observeEvent(input$select_data,{
-        print(input$Data)
-        Data<-get(input$Data)
-        
-            output$Data_View<-renderDataTable({
-                Data
-            },options = list(scrollX = TRUE))
-        
+    output$Fit_plot <- renderPlot({
+      ggplot()
     })
     
+    observeEvent(input$FIT_FT,{
+      
+      sim<-text_eval(input$SIM_Dist)
+      
+      A<-FitUltD::FDistUlt(sim,plot = T,subplot = T,crt = 2)
+      
+      output$Fit_plot <- renderPlot({
+        A[[4]][[1]]
+      })
+      AA<-A[[3]][,1:4]
+      if(nrow(AA)>4){AA[,5]<-"Overfit"}
+      output$Fit_sum<-renderDataTable({
+        AA
+      },options = list(scrollX = TRUE))
+      
+      output$Fit_plot2 <- renderPlot({
+        if(nrow(AA)>1){A[[4]][[2]]}
+      })
+      
+    })
     
-    observeEvent(input$ML_method,{
-        
-        meth<-input$ML_method
-        
-        output$Train_Split <- renderUI(
-            if(meth=="rf"){
-                sliderInput("TTS", label = "Folds",
-                            min = 3,max = 10,4
-                )
-            })
-        output$Paramss <- renderUI(
-            if(meth=="rf"){
-                sliderInput("Data_rf", label = "N. tree",
-                            min = 20,max = 800,400
-                            )
-            }
+  })
+  
+  observeEvent(input$FIT_FTU,{
+    fl<-filedata()
+    if(ncol(fl)>1){
+      output$Sim_sum<-renderDataTable({
+        data.frame("File with more than 1 columns")
+      },options = list(scrollX = TRUE))
+    }else{
+      sim<-na.omit(as.numeric(fl[[1]]))
+      
+      df <- data.frame(x <- sim,
+                       group <- sample(LETTERS[1:5], size = length(sim), replace = T))
+      
+      p <- ggplot(df, aes(x)) + 
+        geom_histogram(aes(y = ..density..), alpha = 0.7, fill = "#333333") + 
+        geom_density(fill = "#ff4d4d", alpha = 0.35) + 
+        theme(panel.background = element_rect(fill = '#ffffff')) + 
+        ggtitle("Density with Histogram")
+      
+      output$Sim_plot <- renderPlot({
+        p
+      })
+      output$Sim_sum<-renderDataTable({
+        data.frame(Min=round(min(sim,na.rm = T),4),
+                   Median=round(median(sim,na.rm = T),4),
+                   Mean=round(mean(sim,na.rm = T),4),
+                   Max=round(max(sim,na.rm = T),4),
+                   SD=round(sd(sim,na.rm = T),4))
+      },options = list(scrollX = TRUE))
+      
+      
+      A<-FitUltD::FDistUlt(sim,plot = T,subplot = T,crt = 2)
+      
+      output$Fit_plot <- renderPlot({
+        A[[4]][[1]]
+      })
+      AA<-A[[3]][,1:4]
+      if(nrow(AA)>4){AA[,5]<-"Overfit"}
+      output$Fit_sum<-renderDataTable({
+        AA
+      },options = list(scrollX = TRUE))
+      
+      output$Fit_plot2 <- renderPlot({
+        if(nrow(AA)>1){A[[4]][[2]]}
+      })
+      
+      
+      
+      
+    }
+  })
+  
+  
+  #####################CARET ML##########################
+  
+  output$datasets <- renderUI(
+    selectInput("Data", label = "Select Dataset", 
+                choices = dtsts[classes %in% "data.frame"], 
+                selected = "",multiple = F)
+  )
+  output$datasets2 <- renderUI(
+    selectInput("Data2", label = "Select Dataset", 
+                choices = dtsts[classes %in% "data.frame"], 
+                selected = "mtcars",multiple = F)
+  )
+  
+  # output$Corrrr<-renderPlot({})
+  # output$Vars<-renderPlot({})
+  observeEvent(input$QVW,{
+    #print(input$Data)
+    Data2<-get(input$Data2)
+    
+    DataN<-Data2[,purrr::map_lgl(Data2,is.numeric)]
+    corr <<- round(cor(na.omit(DataN)), 1)
+    
+    pl1<-try(ggcorrplot::ggcorrplot(corr, hc.order = TRUE, 
+                    type = "lower", 
+                    lab = TRUE, 
+                    lab_size = 3, 
+                    method="circle", 
+                    colors = c("tomato2", "white", "springgreen3"), 
+                    #title=paste0("Correlogram of ",input$Data2), 
+                    ggtheme=theme_bw))
+    
+    print(assertthat::is.error(pl1))
+    
+    if(assertthat::is.error(pl1)){
+      pl1<-plot(DataN)
+    }
+    
+    output$Corrrr<-renderPlot({
+      pl1
+    })
+    
+    output$Vars<-renderPlot({
+      plot(DataN[,1:min(5,ncol(DataN))],col=rainbow(ncol(DataN)))
+    })
+    
+  })
+  
+  
+  observeEvent(input$select_data,{
+    print(input$Data)
+    Data<-get(input$Data)
+    
+    output$Data_View<-renderDataTable({
+      Data
+    },options = list(scrollX = TRUE))
+    
+  })
+  
+  
+  observeEvent(input$ML_method,{
+    
+    meth<-input$ML_method
+    
+    output$Train_Split <- renderUI(
+      if(meth=="Random Forest"){
+        sliderInput("TTS", label = "Folds",
+                    min = 3,max = 10,4
         )
+      })
+    output$Paramss <- renderUI(
+      if(meth=="Random Forest"){
+        sliderInput("Data_rf", label = "N. tree",
+                    min = 20,max = 800,400
+        )
+      }
+    )
+  })
+  
+  
+  observeEvent(input$Data,{
+    Data<-get(input$Data)
+    ND<-names(Data)
+    
+    output$Data_Form<-renderUI({
+      textInput("Form_ML","Write the independant and dependent(s) variables",
+                paste0(ND[1]," ~ ",paste0(ND[2:length(ND)],collapse = " + "))
+      )
+    })
+    
+  })
+  
+  observeEvent(input$select_data,{
+    Data<-get(input$Data)
+    
+    for(i in 1:ncol(Data)){local({
+      id<-i
+      Cll<-Data[[id]]
+      
+      if(is.numeric(Cll)){
+        Alss<-data.frame(Min=round(min(Cll,na.rm = T),4),
+                         Median=round(median(Cll,na.rm = T),4),
+                         Mean=round(mean(Cll,na.rm = T),4),
+                         Max=round(max(Cll,na.rm = T),4),
+                         SD=round(sd(Cll,na.rm = T),4))
+      }else{
+        Alss<-as.data.frame(table(Cll))
+        Alss<-Alss[order(-Alss[[2]]),]
+        
+      }
+      
+      output[[paste0("Usuario ",id)]] <- renderValueBox({
+        valueBox(subtitle = paste0(paste0(names(Alss),": ",Alss),collapse = ", "),
+                 value = names(Data)[id] , color = "aqua" , width = 4
+        )
+      })
+    })
+    }
+    
+    output$Dist_Data <- renderUI({
+      plot_output_list <- lapply(1:ncol(Data), function(i) {
+        plotname <- paste0("Usuario ",i)
+        #plotOutput(plotname, height = 420, width = 810)
+        valueBoxOutput(plotname)
+      })
+      do.call(tagList, plot_output_list)
     })
     
     
-    observeEvent(input$Data,{
-        Data<-get(input$Data)
-        ND<-names(Data)
-        
-        output$Data_Form<-renderUI({
-            textInput("Form_ML","Write the independant and dependent(s) variables",
-            paste0(ND[1]," ~ ",paste0(ND[2:length(ND)],collapse = " + "))
-                )
-        })
-        
-    })
     
-    observeEvent(input$select_data,{
-        Data<-get(input$Data)
-        
-        for(i in 1:ncol(Data)){local({
-            id<-i
-            Cll<-Data[[id]]
-            
-            if(is.numeric(Cll)){
-                Alss<-data.frame(Min=round(min(Cll,na.rm = T),4),
-                                 Median=round(median(Cll,na.rm = T),4),
-                                 Mean=round(mean(Cll,na.rm = T),4),
-                                 Max=round(max(Cll,na.rm = T),4),
-                                 SD=round(sd(Cll,na.rm = T),4))
-            }else{
-                Alss<-as.data.frame(table(Cll))
-                Alss<-Alss[order(-Alss[[2]]),]
-                
-            }
-            
-            output[[paste0("Usuario ",id)]] <- renderValueBox({
-                valueBox(subtitle = paste0(paste0(names(Alss),": ",Alss),collapse = ", "),
-                         value = names(Data)[id] , color = "aqua" , width = 4
-                         )
-            })
-        })
-        }
-        
-        output$Dist_Data <- renderUI({
-            plot_output_list <- lapply(1:ncol(Data), function(i) {
-                plotname <- paste0("Usuario ",i)
-                #plotOutput(plotname, height = 420, width = 810)
-                valueBoxOutput(plotname)
-            })
-            do.call(tagList, plot_output_list)
-        })
-        
-        
-        
-    })
+  })
+  
+  observeEvent(input$Run_ml,{
+    Data<<-get(input$Data)
+    ntree<<-input$Data_rf
+    form<<-formula(input$Form_ML)
     
-    observeEvent(input$Run_ml,{
-        Data<<-get(input$Data)
-        ntree<<-input$Data_rf
-        form<<-formula(input$Form_ML)
-        
-        if(!exists("TTS")){TTS<-.7}
-        
-        TrainTestSplit<-function (df,split=TTS){
-            if(!any("data.frame" %in% class(df))){
-                exit("must be a data.frame object")
-            }
-            RndmV<-runif(nrow(df),0,1)
-            tr<-RndmV<split
-            
-            list(df[tr,],df[!tr,])
-            
-        }
-        
-        A<-TrainTestSplit(Data)
-        Train<-A[[1]];Test<-A[[2]]
-        
-        # rf<-try(randomForest(formula=form,
-        #                        data = Train,
-        #                        ntree = ntree,
-        #                        na.action = na.omit,importance=T))
-        #na.omit(Train)->TRRR
-        rpartFit <- try(train(form,
+    if(!exists("TTS")){TTS<-.7}
+    
+    TrainTestSplit<-function (df,split=TTS){
+      if(!any("data.frame" %in% class(df))){
+        exit("must be a data.frame object")
+      }
+      RndmV<-runif(nrow(df),0,1)
+      tr<-RndmV<split
+      
+      list(df[tr,],df[!tr,])
+      
+    }
+    
+    A<-TrainTestSplit(Data)
+    Train<-A[[1]];Test<-A[[2]]
+    
+    # rf<-try(randomForest(formula=form,
+    #                        data = Train,
+    #                        ntree = ntree,
+    #                        na.action = na.omit,importance=T))
+    #na.omit(Train)->TRRR
+    rpartFit <- try(train(form,
                           data = na.omit(Data),
                           method = "rf",#input$ML_method,
                           #metric="Accuracy",
                           trControl=trainControl(method="repeatedcv", number=input$Run_cv, repeats=3, search="grid"),
                           ntree=ntree,
                           importance=T))
-        
-        #if(assertthat::is.error(rf)){rf<-NULL}
-        
-        Predic<-predict(rpartFit,Test[,!names(Test) %in% as.character(form)[2]])
-        Real<-Test[,names(Test) %in% as.character(form)[2]]
-        
-        # caret::confusionMatrix(as.numeric(Predic), Real) 
-        # ERR<-sum((Predic - Real)^2)/length(Real)
-        
-        # output$ML_pl<-renderPlot({
-        #     #datatable(round(importance(rf), 2))
-        #     plotOutput(plot(rf))
-        #                     #,main=paste0("Error/RMSE: ",round(sqrt(sum((Predic - Real)^2,na.rm=T)/length(Real)),4))))
-        # })
-        # 
-        output$ML_pl<-renderPlot({
-            
-            plot(rpartFit,main="Random Forest")
-        })
-        
-        # A<-as.data.frame(round(importance(rf),2))
-        # A[[ncol(A)+1]]<-paste0("Error/RMSE: ",round(sqrt(sum((Predic - Real)^2,na.rm=T)/length(Real)),4))
-        output$ML_Data<-renderDataTable({
-            round(rpartFit[[4]],4)
-        })
-        output$ML_imp<-renderDataTable({
-            round(varImp(rpartFit)[[1]],3)
-        })
+    
+    #if(assertthat::is.error(rf)){rf<-NULL}
+    
+    Predic<-predict(rpartFit,Test[,!names(Test) %in% as.character(form)[2]])
+    Real<-Test[,names(Test) %in% as.character(form)[2]]
+    
+    # caret::confusionMatrix(as.numeric(Predic), Real) 
+    # ERR<-sum((Predic - Real)^2)/length(Real)
+    
+    # output$ML_pl<-renderPlot({
+    #     #datatable(round(importance(rf), 2))
+    #     plotOutput(plot(rf))
+    #                     #,main=paste0("Error/RMSE: ",round(sqrt(sum((Predic - Real)^2,na.rm=T)/length(Real)),4))))
+    # })
+    # 
+    output$ML_pl<-renderPlot({
+      
+      plot(rpartFit,main="Random Forest")
     })
     
-    #desc_qr
+    # A<-as.data.frame(round(importance(rf),2))
+    # A[[ncol(A)+1]]<-paste0("Error/RMSE: ",round(sqrt(sum((Predic - Real)^2,na.rm=T)/length(Real)),4))
+    output$ML_Data<-renderDataTable({
+      round(rpartFit[[4]],4)
+    })
+    output$ML_imp<-renderDataTable({
+      round(varImp(rpartFit)[[1]],3)
+    })
+  })
+  
+  observeEvent(input$submit_sign_in, {
     
-    observeEvent(input$submit_sign_in, {
-      
-      #current_user <- session$userData$current_user()
-      current_user<-NULL
-      Condodaro<-paste0(input$email,input$password)
-      contoCond<-as.character(Condodaro)=="Test1234"
-      
-      if (!contoCond ) {
-        shinyjs::show("sign_in_panel")
-        shinyjs::hide("main")
-      } else {
-        shinyjs::hide("sign_in_panel")
-        shinyjs::show("main")
-      }
-    }, ignoreNULL = FALSE)
+    #current_user <- session$userData$current_user()
+    current_user<-NULL
+    Condodaro<-paste0(input$email,input$password)
+    contoCond<-as.character(Condodaro)=="Test1234"
     
-    
-    
-    if(FALSE){
-        library(rsconnect)
-        deployApp()
+    if (!contoCond ) {
+      shinyjs::show("sign_in_panel")
+      shinyjs::hide("main")
+    } else {
+      shinyjs::hide("sign_in_panel")
+      shinyjs::show("main")
     }
+  }, ignoreNULL = FALSE)
+  
+  if(FALSE){
+    library(rsconnect)
+    deployApp()
+  }
 }
 
 # Run the application 
