@@ -42,6 +42,7 @@ library(RColorBrewer)
 library(qualV)
 library(colourpicker)
 library(ggcorrplot)
+library(tibble)
 
 ui <- fluidPage(
   
@@ -115,13 +116,19 @@ ui <- fluidPage(
                       # helpText(strong(p("Content"
                       #                   , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       # br(""),
+                      helpText(strong(p("- Visualization "
+                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      br(""),
+                      helpText((p("This first tab shows you the principle features from a dataset to see the basic relations and behaviours"
+                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      br(""),
                       helpText(strong(p("- Query "
                                         , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       br(""),
-                      helpText((p("The first tab was born to solve the problem of using R in a computer with user's restrictions or even a smartphone, taking advantage of SQL natural integration with R"
+                      helpText((p("This tab was born to solve the problem of using R in a computer with user's restrictions or even a smartphone, taking advantage of SQL natural integration with R"
                                   , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       br(""),
-                      helpText(strong(p("- FitUltD "
+                      helpText(strong(p("- My R package "
                                         , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       br(""),
                       helpText((p("FitUltD is a personal project. It exists due to the need to fit a parametric model to a disease that affected the population in two different phases, fitting distributions using machine learning clustering methods. Aplications:"
@@ -130,18 +137,19 @@ ui <- fluidPage(
                                   , style="color:black ; font-family: 'times'; font-size:16pt;text-align:left"))) ,
                       
                       br(""),
-                      helpText(strong(p("- Data Quality"
-                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                      br(""),
-                      helpText((p("This tab exists to define the minimum requirements that a database must have to apply statistical inference (the customer wanted to migrate valuable information and not spend resources on obsolete datasets)"
-                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                      br(""),
                       helpText(strong(p("- Machine Learning"
                                         , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       br(""),
                       helpText((p("This tab allows to visualize data during the fitting process of a machine learning model"
                                   , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       br(""),
+                      helpText(strong(p("- More.../Data Quality"
+                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      br(""),
+                      helpText((p("This tab exists to define the minimum requirements that a database must have to apply statistical inference (the customer wanted to migrate valuable information and not spend resources on obsolete datasets)"
+                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      br(""),
+                      
                       br(""),
                       br(""),
                       br(""),
@@ -157,6 +165,23 @@ ui <- fluidPage(
                br(""),br(""),br(""),br(""),br(""),br(""),br(""),br(""),br(""),br("")
                
                
+      ),
+      tabPanel("Visualization", 
+               br(),
+               
+               div(
+                 style = "padding: 50px",
+                 
+                 # Correlation matrix
+                 uiOutput("datasets2"),
+                 actionButton("QVW","Quick View"),
+                 h3("Correlogram"),
+                 plotOutput("Corrrr"),
+                 h3("Variables"),
+                 plotOutput("Vars"),
+                 h3("Distribution"),
+                 plotOutput("Distplt")
+               )
       ),
       tabPanel("Query", 
                br(),
@@ -187,6 +212,12 @@ ui <- fluidPage(
                          width = "600px"),
                actionButton("SIM_FT","Simulate"),
                actionButton("FIT_FT","Fit"),
+               h4("You can try with any kind of information, copy and paste one of the following codes in the text input: "),
+               h5("iris$Petal.Length"),
+               h5("mtcars$mpg"),
+               h5("trees$Volume"),
+               
+               
                fileInput("datafile", "Choose File",
                          multiple = FALSE,
                          accept = c("text/csv",
@@ -227,84 +258,6 @@ ui <- fluidPage(
                dataTableOutput("ML_Data"),
                dataTableOutput("ML_imp"),
                plotOutput("ML_pl")
-      ),
-      tabPanel("Data Quality", 
-               br(),
-               tabPanel(
-                 
-                 br(),
-                 
-                 # Only one zone for the home page
-                 column(12, offset=0, align="center" ,
-                        
-                        # Set the style of this page
-                        style="
-				background-image: url(my_image.png);
-				opacity: 0.8;
-				background-color: white;
-				margin-top: -20px;
-				width: 100%;
-				",
-                        
-                        # And write the welcome message
-                        br(""),br(""),br(""),
-                        helpText(strong("Data Quality"
-                                        , style="color:black ; font-family: 'times'; font-size:50pt ; font-type:bold" ) ) ,
-                        br(""),
-                        helpText(strong(p("This is one of the key functions that aid data governance by monitoring data to find exceptions undiscovered"
-                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                        br(""),
-                        
-                        br(""),
-                        helpText(strong(p("Aviability"
-                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                        br(""),
-                        helpText(strong(p("Know if the information was uploaded in the correct time and place"
-                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                        #textOutput("DQ_Fcha"),
-                        br(""),
-                        
-                        br(""),br(""),br(""),br(""),br(""),
-                        helpText(strong(p("Completeness"
-                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                        br(""),
-                        helpText(strong(p("Corroborate that the number of rows and columns is appropriate by specifying it in the corresponding file"
-                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                        #textOutput("DQ_Fcha"),
-                        br(""),
-                        
-                        br(""),br(""),br(""),br(""),br(""),
-                        helpText(strong(p("Consistance"
-                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                        br(""),
-                        helpText(strong(p("Duplicate data, comparison of the data in two different tables"
-                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                        #                           textOutput("DQ_Fcha"),
-                        br(""),
-                        #                            
-                        br(""),br(""),br(""),br(""),br(""),
-                        helpText(strong(p("Integrity"
-                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                        br(""),
-                        helpText(strong(p("Calculations' replication and application of functions and transformations between columns"
-                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                        #textOutput("DQ_Fcha"),
-                        br(""), br(""),br(""),br(""),br(""),br(""),
-                        helpText(strong(p("Accuracy"
-                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                        br(""),
-                        helpText(strong(p("Data volume through the time, sensibility between values, time series analysis up to n observations"
-                                          , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                        textOutput("DQ_Fcha")
-                        
-                        
-                        #Close column
-                 )
-                 
-                 #Close the tabPanel
-               )
-               
-               
       ),
       tabPanel("More...", 
                
@@ -371,17 +324,78 @@ ui <- fluidPage(
                
                hidden(fluidRow(
                  id = "main",
+                 br(),
                  column(
                    12,
-                   div(
-                     style = "padding: 50px",
+                   tabPanel(
                      
-                     # Correlation matrix
-                     uiOutput("datasets2"),
-                     actionButton("QVW","Quick View"),
-                     plotOutput("Corrrr"),
-                     plotOutput("Vars")
+                     br(),
                      
+                     # Only one zone for the home page
+                     column(12, offset=0, align="center" ,
+                            
+                            # Set the style of this page
+                            style="
+				background-image: url(my_image.png);
+				opacity: 0.8;
+				background-color: white;
+				margin-top: -20px;
+				width: 100%;
+				",
+                            
+                            # And write the welcome message
+                            br(""),br(""),br(""),
+                            helpText(strong("Data Quality"
+                                            , style="color:black ; font-family: 'times'; font-size:50pt ; font-type:bold" ) ) ,
+                            br(""),
+                            helpText(strong(p("This is one of the key functions that aid data governance by monitoring data to find exceptions undiscovered"
+                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                            br(""),
+                            
+                            br(""),
+                            helpText(strong(p("Aviability"
+                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                            br(""),
+                            helpText(strong(p("Know if the information was uploaded in the correct time and place"
+                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                            #textOutput("DQ_Fcha"),
+                            br(""),
+                            
+                            br(""),br(""),br(""),br(""),br(""),
+                            helpText(strong(p("Completeness"
+                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                            br(""),
+                            helpText(strong(p("Corroborate that the number of rows and columns is appropriate by specifying it in the corresponding file"
+                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                            #textOutput("DQ_Fcha"),
+                            br(""),br(""),br(""),br(""),br(""),br(""),
+                            helpText(strong(p("Consistance"
+                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                            br(""),
+                            helpText(strong(p("Duplicate data, comparison of the data in two different tables"
+                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                            #                           textOutput("DQ_Fcha"),
+                            br(""),
+                            #                            
+                            br(""),br(""),br(""),br(""),br(""),
+                            helpText(strong(p("Integrity"
+                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                            br(""),
+                            helpText(strong(p("Calculations' replication and application of functions and transformations between columns"
+                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                            #textOutput("DQ_Fcha"),
+                            br(""), br(""),br(""),br(""),br(""),br(""),
+                            helpText(strong(p("Accuracy"
+                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                            br(""),
+                            helpText(strong(p("Data volume through the time, sensibility between values, time series analysis up to n observations"
+                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                            textOutput("DQ_Fcha")
+                            
+                            #Close column
+                     )
+                     
+                     #Close the tabPanel
                    )
                  )
                ))
@@ -638,7 +652,7 @@ server <- function(input, output,session) {
     
     observeEvent(input$FIT_FT,{
       
-      sim<-text_eval(input$SIM_Dist)
+      sim<-na.omit(as.numeric(text_eval(input$SIM_Dist)))
       
       A<-FitUltD::FDistUlt(sim,plot = T,subplot = T,crt = 2)
       
@@ -728,10 +742,14 @@ server <- function(input, output,session) {
   # output$Vars<-renderPlot({})
   observeEvent(input$QVW,{
     #print(input$Data)
-    Data2<-get(input$Data2)
+    Data2<-tibble::as.tibble(get(input$Data2))
+    if(ncol(Data2)<3){
+      Data2<-iris
+    }
     
-    DataN<-Data2[,purrr::map_lgl(Data2,is.numeric)]
-    corr <<- round(cor(na.omit(DataN)), 1)
+    DataN<-(Data2[,purrr::map_lgl(Data2,is.numeric)])
+    
+    corr <- round(cor(na.omit(DataN)), 1)
     
     pl1<-try(ggcorrplot::ggcorrplot(corr, hc.order = TRUE, 
                     type = "lower", 
@@ -739,7 +757,7 @@ server <- function(input, output,session) {
                     lab_size = 3, 
                     method="circle", 
                     colors = c("tomato2", "white", "springgreen3"), 
-                    #title=paste0("Correlogram of ",input$Data2), 
+                    title=paste0("Correlogram of ",input$Data2), 
                     ggtheme=theme_bw))
     
     print(assertthat::is.error(pl1))
@@ -756,11 +774,41 @@ server <- function(input, output,session) {
       plot(DataN[,1:min(5,ncol(DataN))],col=rainbow(ncol(DataN)))
     })
     
+    all_nms<-names(Data2)
+    all_N<-names(DataN)
+    clasif<-all_nms[!all_nms %in% all_N]
+    if(length(clasif)!=0){
+    ntcls<-names(Data2) %in% clasif
+    
+    names(Data2)[ntcls]<-paste0("Cl",1:sum(ntcls))
+    names(Data2)[!ntcls]<-paste0("Nm",1:sum(!ntcls))
+    
+    p <- ggplot(Data2, aes(factor(Cl1),Nm1))
+    
+    output$Distplt<-renderPlot({
+      p + geom_violin() + geom_jitter(height = 0, width = 0.05) +  theme_minimal() +
+        ylab((all_N)[1]) +
+        xlab((clasif)[1])
+    })
+    }else{
+      names(Data2)<-paste0("Nm",1:ncol(Data2))
+      Data2<-scale(Data2)
+      DF2<-data.frame(Y=do.call(c,purrr::map(Data2,c)),
+      X=rep(all_nms,each=nrow(Data2)))
+      
+      p <- ggplot(DF2, aes(factor(X),Y))
+      
+      output$Distplt<-renderPlot({
+        p + geom_violin() + geom_jitter(height = 0, width = 0.05) +  theme_minimal() +
+          ylab((all_N)[1])+xlab("Variables")
+      })
+    }
+    
   })
   
   
   observeEvent(input$select_data,{
-    print(input$Data)
+    #print(input$Data)
     Data<-get(input$Data)
     
     output$Data_View<-renderDataTable({
