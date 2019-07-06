@@ -339,8 +339,8 @@ ui <- fluidPage(
 				",
               h5(paste0("Try: Summary, ls, apply, mtcars, ifelse, stop, pi, lm.fit, system.time, glm, var, ts, sd, formals, iris, data.frame, decompose, R.home, arima, try, is.error, randomForest, kmeans, q, as.factor, write.csv, read.csv, warning ...")),
               br(),
-              htmlOutput("selected_var")
-               
+              htmlOutput("selected_var"),
+              br(),br(),br(),br(),br()
                )),
       tabPanel("More...", 
                br(),
@@ -936,7 +936,7 @@ server <- function(input, output,session) {
     ND<-names(Data)
     
     output$Data_Form<-renderUI({
-      textInput("Form_ML","Write the independant and dependent(s) variables",
+      textInput("Form_ML","Write the independant(s) and dependent variables",
                 paste0(ND[1]," ~ ",paste0(ND[2:length(ND)],collapse = " + "))
       )
     })
