@@ -24,6 +24,7 @@ text_eval<-function(a){
 
 dtsts<-ls("package:datasets")
 classes<-purrr::map(dtsts,~class(text_eval(.x)))
+#source("time_series/ts.R")
 
 library(DT)
 library(shinyjs)
@@ -32,8 +33,10 @@ library(shinycssloaders)
 library(sqldf)
 library(V8)
 library(ggplot2)
+library(markdown)
 library(assertthat)
 library(FitUltD)
+library(quantmod)
 library(caret)
 library(randomForest)
 library(shinythemes)
@@ -43,12 +46,15 @@ library(qualV)
 library(colourpicker)
 library(ggcorrplot)
 library(tibble)
+library(TSA)
+library(forecast)
 
 ui <- fluidPage(
   
   useShinyjs(),
   # extendShinyjs(text = "shinyjs.reset = function() {history.go(0)}"),
-  theme = shinytheme("cerulean"),
+  theme = shinytheme("sandstone"),
+  includeCSS("www/custom.css"),
   #dashboardPage(
   # dashboardHeader(title = "iLightData", titleWidth = 800,
   #                 dropdownMenu(
@@ -75,7 +81,18 @@ ui <- fluidPage(
   #   )
   # ),
   titlePanel(""),
-  h1("Data Visualization Dashboard"), hr(""),
+  #helpText(strong("Data Visualization Dashboard")),
+  br(),
+  column(12, offset=0,
+  h1(strong("Data Visualization Dashboard"),style="
+				background-image: url(my_image.png);
+				opacity: 0.7;
+				background-color: white;
+				width: 66%;
+				text-align:center;
+     margin-top: 0px;
+     ")),
+  br(""),
   mainPanel(
     # within tabPanels(), define the pages for sidebar menu items
     
@@ -106,7 +123,7 @@ ui <- fluidPage(
                       helpText(strong(p("- iLightData's purpose is to accelerate automatable procedures without cost, online and without complex installation processes." 
                                         , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       br(""),
-                      helpText(strong(p("- Feel free to explore, to go deeper visit www.github.com/jcval94 or email me: valc941226@gmail.com" 
+                      helpText(strong(p("- Feel free to explore, to go deeper visit my ",a("GitHub", href="http://www.github.com/jcval94", target="_blank"), " or send me an email to: valc941226@gmail.com" 
                                         , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       br(""),
                       helpText(strong(p("- José Carlos Del Valle"
@@ -143,6 +160,13 @@ ui <- fluidPage(
                       helpText((p("This tab allows to visualize data during the fitting process of a machine learning model"
                                   , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       br(""),
+                      helpText(strong(p("- View"
+                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      br(""),
+                      helpText((p("This is the way I learned R, looking how the functions were built"
+                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      br(""),
+                      
                       helpText(strong(p("- More.../Data Quality"
                                         , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       br(""),
@@ -168,6 +192,15 @@ ui <- fluidPage(
       ),
       tabPanel("Visualization", 
                br(),
+               column(12, offset=0, align="center" ,
+                      
+               style="
+				background-image: url(my_image.png);
+				opacity: 0.8;
+				background-color: white;
+				margin-top: -20px;
+				width: 100%;
+				",
                
                div(
                  style = "padding: 50px",
@@ -182,8 +215,19 @@ ui <- fluidPage(
                  h3("Distribution"),
                  plotOutput("Distplt")
                )
+               )
       ),
       tabPanel("Query", 
+               br(),
+               column(12, offset=0, align="center" ,
+                      
+                      style="
+				background-image: url(my_image.png);
+				opacity: 0.8;
+				background-color: white;
+				margin-top: -20px;
+				width: 100%;
+				",
                br(),
                h2("Summary"),
                h4("This tab runs R and SQL online"),
@@ -202,10 +246,22 @@ ui <- fluidPage(
                #textOutput("query_r"),
                
                hr(),
-               dataTableOutput("DLS")
+               dataTableOutput("DLS"),
+               br(),br(),br(),br(),br()
+               )
       ),
       tabPanel("My Package", 
-               h2("My package"),
+               br(),
+               column(12, offset=0, align="center" ,
+                      
+                      style="
+				background-image: url(my_image.png);
+				opacity: 0.8;
+				background-color: white;
+				margin-top: -20px;
+				width: 100%;
+				",
+               h2("My package (FitUltD)"),
                h4("Tool to fit distributions (Just be careful with overfitting)"),
                textInput("SIM_Dist",label =  h3("Choose a modal or multimodal distribution."), 
                          value = "c(rnorm(1000,0,1),rgamma(1000,9,2))",
@@ -228,12 +284,23 @@ ui <- fluidPage(
                withSpinner(dataTableOutput("Sim_sum"),type = 6),
                withSpinner(plotOutput("Fit_plot"),type = 6),
                dataTableOutput("Fit_sum"),
-               plotOutput("Fit_plot2") 
-               
+               br(),
+               plotOutput("Fit_plot2"),
+               br(),br(),br(),br(),br(),br()
                # withSpinner(plotOutput("Fit_plot"),type = 6)
-               
+               )
       ),
       tabPanel("Machine Learning", 
+               br(),
+               column(12, offset=0, align="center" ,
+                      
+                      style="
+				background-image: url(my_image.png);
+				opacity: 0.8;
+				background-color: white;
+				margin-top: -20px;
+				width: 100%;
+				",
                h2("Machine Learning Tab"),
                uiOutput("datasets"),
                #selectInput("Var_est","Select Dataset",choices = c("Year","Decade"),multiple = F),
@@ -257,148 +324,173 @@ ui <- fluidPage(
                uiOutput("Dist_Data"),
                dataTableOutput("ML_Data"),
                dataTableOutput("ML_imp"),
-               plotOutput("ML_pl")
+               plotOutput("ML_pl"),
+               br(),br(),br(),br(),br(),br()
+               )
       ),
+      tabPanel("View", 
+               br(),
+               textInput("fun_name",h2("Write a function"),value = "lm"),
+               column(12,offset=0 ,style="
+				background-image: url(my_image.png);
+				opacity: 0.8;
+				background-color: white;
+				width: 100%;
+				",
+              h5(paste0("Try: Summary, ls, apply, mtcars, ifelse, stop, pi, lm.fit, system.time, glm, var, ts, sd, formals, iris, data.frame, decompose, R.home, arima, try, is.error, randomForest, kmeans, q, as.factor, write.csv, read.csv, warning ...")),
+              br(),
+              htmlOutput("selected_var")
+               
+               )),
       tabPanel("More...", 
-               
-               div(
-                 id = "sign_in_panel",
-                 class = "auth_panel",
-                 h2("Users Management"),
-                 h1(
-                   class = "text-center",
-                   style = "padding-top: 0;",
-                   "Sign In"
-                 ),
-                 h3("Try email: Test & password: 1234"),
-                 br(),
-                 div(
-                   class = "form-group",
-                   style = "width: 100%",
-                   tags$label(
-                     tagList(icon("envelope"), "email/user"),
-                     `for` = "email"
-                   ),
-                   tags$input(
-                     id = "email",
-                     type = "text",
-                     class = "form-control",
-                     value = ""
-                   )
-                 ),
-                 br(),
-                 div(
-                   class = "form-group",
-                   style = "width: 100%",
-                   tags$label(
-                     tagList(icon("unlock-alt"), "password"),
-                     `for` = "password"
-                   ),
-                   tags$input(
-                     id = "password",
-                     type = "password",
-                     class = "form-control",
-                     value = "",
-                     placeholder = "**********"
-                   )
-                 ),
-                 br(),
-                 br(),
-                 div(
-                   style = "text-align: center;",
-                   # tags$button(
-                   #   id = "submit_sign_in",
-                   #   style = "color: white; width: 100%;",
-                   #   type = "button",
-                   #   class = "btn btn-primary btn-lg",
-                   #   "Sign In"
-                   # ),
-                   actionButton(inputId = "submit_sign_in",
-                                label = "Sing In"
-                   ),
-                   br(),
-                   br(),
-                   br()
-                 )
-               ),
-               
-               hidden(fluidRow(
-                 id = "main",
-                 br(),
-                 column(
-                   12,
-                   tabPanel(
-                     
-                     br(),
-                     
-                     # Only one zone for the home page
-                     column(12, offset=0, align="center" ,
-                            
-                            # Set the style of this page
-                            style="
+               br(),
+               column(12, offset=0, align="center" ,
+                      
+                      style="
 				background-image: url(my_image.png);
 				opacity: 0.8;
 				background-color: white;
 				margin-top: -20px;
 				width: 100%;
 				",
+                      div(
+                        id = "sign_in_panel",
+                        class = "auth_panel",
+                        h2("Users Management"),
+                        h1(
+                          class = "text-center",
+                          style = "padding-top: 0;",
+                          "Sign In"
+                        ),
+                        h3("Try email: Test & password: 1234"),
+                        br(),
+                        div(
+                          class = "form-group",
+                          style = "width: 100%",
+                          tags$label(
+                            tagList(icon("envelope"), "email/user"),
+                            `for` = "email"
+                          ),
+                          tags$input(
+                            id = "email",
+                            type = "text",
+                            class = "form-control",
+                            value = ""
+                          )
+                        ),
+                        br(),
+                        div(
+                          class = "form-group",
+                          style = "width: 100%",
+                          tags$label(
+                            tagList(icon("unlock-alt"), "password"),
+                            `for` = "password"
+                          ),
+                          tags$input(
+                            id = "password",
+                            type = "password",
+                            class = "form-control",
+                            value = "",
+                            placeholder = "**********"
+                          )
+                        ),
+                        br(),
+                        br(),
+                        div(
+                          style = "text-align: center;",
+                          # tags$button(
+                          #   id = "submit_sign_in",
+                          #   style = "color: white; width: 100%;",
+                          #   type = "button",
+                          #   class = "btn btn-primary btn-lg",
+                          #   "Sign In"
+                          # ),
+                          actionButton(inputId = "submit_sign_in",
+                                       label = "Sing In"
+                          ),
+                          br(),
+                          br(),
+                          br()
+                        )
+                      ),
+                      
+                      hidden(fluidRow(
+                        id = "main",
+                        br(),
+                        column(
+                          12,
+                          tabPanel(
                             
-                            # And write the welcome message
-                            br(""),br(""),br(""),
-                            helpText(strong("Data Quality"
-                                            , style="color:black ; font-family: 'times'; font-size:50pt ; font-type:bold" ) ) ,
-                            br(""),
-                            helpText(strong(p("This is one of the key functions that aid data governance by monitoring data to find exceptions undiscovered"
-                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                            br(""),
+                            br(),
                             
-                            br(""),
-                            helpText(strong(p("Aviability"
-                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                            br(""),
-                            helpText(strong(p("Know if the information was uploaded in the correct time and place"
-                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                            #textOutput("DQ_Fcha"),
-                            br(""),
-                            
-                            br(""),br(""),br(""),br(""),br(""),
-                            helpText(strong(p("Completeness"
-                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                            br(""),
-                            helpText(strong(p("Corroborate that the number of rows and columns is appropriate by specifying it in the corresponding file"
-                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                            #textOutput("DQ_Fcha"),
-                            br(""),br(""),br(""),br(""),br(""),br(""),
-                            helpText(strong(p("Consistance"
-                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                            br(""),
-                            helpText(strong(p("Duplicate data, comparison of the data in two different tables"
-                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                            #                           textOutput("DQ_Fcha"),
-                            br(""),
-                            #                            
-                            br(""),br(""),br(""),br(""),br(""),
-                            helpText(strong(p("Integrity"
-                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                            br(""),
-                            helpText(strong(p("Calculations' replication and application of functions and transformations between columns"
-                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                            #textOutput("DQ_Fcha"),
-                            br(""), br(""),br(""),br(""),br(""),br(""),
-                            helpText(strong(p("Accuracy"
-                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                            br(""),
-                            helpText(strong(p("Data volume through the time, sensibility between values, time series analysis up to n observations"
-                                              , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                            textOutput("DQ_Fcha")
-                            
-                            #Close column
-                     )
-                     
-                     #Close the tabPanel
-                   )
-                 )
-               ))
+                            # Only one zone for the home page
+                            column(12, offset=0, align="center" ,
+                                   
+                                   # Set the style of this page
+                                   style="
+				background-image: url(my_image.png);
+				opacity: 0.8;
+				background-color: white;
+				margin-top: -20px;
+				width: 100%;
+				",
+                                   
+                                   # And write the welcome message
+                                   br(""),br(""),br(""),
+                                   helpText(strong("Data Quality"
+                                                   , style="color:black ; font-family: 'times'; font-size:50pt ; font-type:bold" ) ) ,
+                                   br(""),
+                                   helpText(strong(p("This is one of the key functions that aid data governance by monitoring data to find exceptions undiscovered"
+                                                     , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                                   br(""),
+                                   
+                                   br(""),
+                                   helpText(strong(p("Aviability"
+                                                     , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                                   br(""),
+                                   helpText(strong(p("Know if the information was uploaded in the correct time and place"
+                                                     , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                                   #textOutput("DQ_Fcha"),
+                                   br(""),
+                                   
+                                   br(""),br(""),br(""),br(""),br(""),
+                                   helpText(strong(p("Completeness"
+                                                     , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                                   br(""),
+                                   helpText(strong(p("Corroborate that the number of rows and columns is appropriate by specifying it in the corresponding file"
+                                                     , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                                   #textOutput("DQ_Fcha"),
+                                   br(""),br(""),br(""),br(""),br(""),br(""),
+                                   helpText(strong(p("Consistance"
+                                                     , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                                   br(""),
+                                   helpText(strong(p("Duplicate data, comparison of the data in two different tables"
+                                                     , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                                   #                           textOutput("DQ_Fcha"),
+                                   br(""),
+                                   #                            
+                                   br(""),br(""),br(""),br(""),br(""),
+                                   helpText(strong(p("Integrity"
+                                                     , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                                   br(""),
+                                   helpText(strong(p("Calculations' replication and application of functions and transformations between columns"
+                                                     , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                                   #textOutput("DQ_Fcha"),
+                                   br(""), br(""),br(""),br(""),br(""),br(""),
+                                   helpText(strong(p("Accuracy"
+                                                     , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                                   br(""),
+                                   helpText(strong(p("Data volume through the time, sensibility between values, time series analysis up to n observations"
+                                                     , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                                   textOutput("DQ_Fcha")
+                                   
+                                   #Close column
+                            )
+                          )
+                          #Close the tabPanel
+                        )
+                      )
+                      ))
                
                
       )
@@ -675,6 +767,7 @@ server <- function(input, output,session) {
   
   observeEvent(input$FIT_FTU,{
     fl<-filedata()
+    if(is.null(fl)){fl<-rnorm(1000)}
     if(ncol(fl)>1){
       output$Sim_sum<-renderDataTable({
         data.frame("File with more than 1 columns")
@@ -742,7 +835,7 @@ server <- function(input, output,session) {
   # output$Vars<-renderPlot({})
   observeEvent(input$QVW,{
     #print(input$Data)
-    Data2<-tibble::as.tibble(get(input$Data2))
+    Data2<-tibble::as_tibble(get(input$Data2))
     if(ncol(Data2)<3){
       Data2<-iris
     }
@@ -925,13 +1018,11 @@ server <- function(input, output,session) {
                           importance=T))
     
     #if(assertthat::is.error(rf)){rf<-NULL}
-    
     Predic<-predict(rpartFit,Test[,!names(Test) %in% as.character(form)[2]])
     Real<-Test[,names(Test) %in% as.character(form)[2]]
     
     # caret::confusionMatrix(as.numeric(Predic), Real) 
     # ERR<-sum((Predic - Real)^2)/length(Real)
-    
     # output$ML_pl<-renderPlot({
     #     #datatable(round(importance(rf), 2))
     #     plotOutput(plot(rf))
@@ -939,7 +1030,6 @@ server <- function(input, output,session) {
     # })
     # 
     output$ML_pl<-renderPlot({
-      
       plot(rpartFit,main="Random Forest")
     })
     
@@ -968,6 +1058,15 @@ server <- function(input, output,session) {
       shinyjs::show("main")
     }
   }, ignoreNULL = FALSE)
+  
+  observeEvent(input$fun_name,{
+    output$selected_var <- renderUI({ 
+      
+      texto<-try(deparse(get(input$fun_name)),silent = T)
+      if(assertthat::is.error(texto)){texto<-"-"}
+      pre(HTML(paste(texto, collapse = '<br/>')))
+    })
+  })
   
   if(FALSE){
     library(rsconnect)
