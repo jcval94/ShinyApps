@@ -1,22 +1,4 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
 
-# list.of.packages <- c("shiny","ggmap","assertthat","shinyFiles","shinydashboard","shinydashboardPlus",
-#                       "plyr","timeSeries","foreign","forecast","tseries","reshape2",
-#                       "assertthat","fitdistrplus","randomForest","rpart","mclust","sqldf",
-#                       "MLmetrics","Matrix","dplyr","ADGofTest","shinyShortcut","readr","xlsx",
-#                       "purrr","boot","TSA","data.table","forecast","ggplot2","shinyjs","V8",
-#                       "Hmisc","RODBC","sf","tmap","ggpubr","DT","corrplot","NbClust","Rcpp",
-#                       "shinycssloaders","FitUltD")
-# list.of.packages_GIT<-c("leaflet")
-#No se puede usar esta forma, 
-#lapply(c(list.of.packages),function(x){try(library(x,character.only=TRUE),silent = T)}) 
-#s1<-function(X){X+3}
 text_eval<-function(a){
   if(class(a)!="character"){return()}
   eval(parse(text = a))
@@ -32,12 +14,14 @@ library(shinydashboard)
 library(shinycssloaders)
 library(sqldf)
 library(V8)
+library(psych)
 library(ggplot2)
 library(markdown)
 library(assertthat)
 library(FitUltD)
 library(quantmod)
 library(caret)
+library(knitr)
 library(randomForest)
 library(shinythemes)
 library(shinyAce)
@@ -47,13 +31,13 @@ library(colourpicker)
 library(ggcorrplot)
 library(tibble)
 library(TSA)
-library(forecast)
+# library(forecast)
 
 ui <- fluidPage(
   
   useShinyjs(),
   # extendShinyjs(text = "shinyjs.reset = function() {history.go(0)}"),
-  theme = shinytheme("sandstone"),
+  theme = shinytheme("lumen"),
   includeCSS("www/custom.css"),
   #dashboardPage(
   # dashboardHeader(title = "iLightData", titleWidth = 800,
@@ -88,7 +72,7 @@ ui <- fluidPage(
 				background-image: url(my_image.png);
 				opacity: 0.7;
 				background-color: white;
-				width: 66%;
+				width: 100%;
 				text-align:center;
      margin-top: 0px;
      ")),
@@ -112,7 +96,7 @@ ui <- fluidPage(
 				opacity: 0.8;
 				background-color: white;
 				margin-top: -20px;
-				width: 100%;
+				width: 150%;
 				",
                       
                       # And write the welcome message
@@ -120,67 +104,70 @@ ui <- fluidPage(
                       helpText(strong("Welcome to iLightData"
                                       , style="color:black ; font-family: 'times'; font-size:50pt ; font-type:bold" ) ) ,
                       br(""),
-                      helpText(strong(p("- iLightData's purpose is to accelerate automatable procedures without cost, online and without complex installation processes." 
+                      helpText(strong(p("- iLightData's purpose is to accelerate automatable procedures without cost, online and without complex installation processes. It allows you to work with: R, SQL, Excel, Google Drive & Spreadsheet, Spark, MarkDown, Visual, GitHub, etc."
                                         , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       br(""),
-                      helpText(strong(p("- Feel free to explore, to go deeper visit my ",a("GitHub", href="http://www.github.com/jcval94", target="_blank"), " or send me an email to: valc941226@gmail.com" 
+                      helpText(strong(p("- Feel free to explore."
                                         , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       br(""),
-                      helpText(strong(p("- José Carlos Del Valle"
+                      helpText(strong(p("- Index: "
                                         , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       br(""),
                       br(""),
                       # helpText(strong(p("Content"
                       #                   , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       # br(""),
-                      helpText(strong(p("- Visualization "
+                      helpText((p("- Visualization "
+                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      # br(""),
+                      # helpText((p("This first tab shows you the principle features from a dataset to see the basic relations and behaviours"
+                      #             , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      br(""),
+                      helpText((p("- Query "
                                         , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       br(""),
-                      helpText((p("This first tab shows you the principle features from a dataset to see the basic relations and behaviours"
-                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                      br(""),
-                      helpText(strong(p("- Query "
+                      # helpText((p("This tab was born to solve the problem of using R in a computer with user's restrictions or even a smartphone, taking advantage of SQL natural integration with R"
+                      #             , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      # br(""),
+                      helpText((p("- My probability model "
                                         , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       br(""),
-                      helpText((p("This tab was born to solve the problem of using R in a computer with user's restrictions or even a smartphone, taking advantage of SQL natural integration with R"
-                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                      br(""),
-                      helpText(strong(p("- My R package "
+                      # helpText((p("FitUltD is a personal project. It exists due to the need to fit a parametric model to a disease that affected the population in two different phases, fitting distributions using machine learning clustering methods. Aplications:"
+                      #             , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      # helpText((p("DNA methylation in human and mouse genome, distribution of growth rates among the individuals, ruin theory, claim insurance policies distribution, etc."
+                      #             , style="color:black ; font-family: 'times'; font-size:16pt;text-align:left"))) ,
+                      # br(""),
+                      helpText((p("- Machine Learning"
                                         , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      # br(""),
+                      # helpText((p("This tab allows to visualize data during the fitting process of a machine learning model"
+                      #             , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       br(""),
-                      helpText((p("FitUltD is a personal project. It exists due to the need to fit a parametric model to a disease that affected the population in two different phases, fitting distributions using machine learning clustering methods. Aplications:"
-                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                      helpText((p("DNA methylation in human and mouse genome, distribution of growth rates among the individuals, ruin theory, claim insurance policies distribution, etc."
-                                  , style="color:black ; font-family: 'times'; font-size:16pt;text-align:left"))) ,
-                      
-                      br(""),
-                      helpText(strong(p("- Machine Learning"
+                      helpText((p("- View Code"
                                         , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                      br(""),
-                      helpText((p("This tab allows to visualize data during the fitting process of a machine learning model"
-                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                      br(""),
-                      helpText(strong(p("- View"
-                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                      br(""),
-                      helpText((p("This is the way I learned R, looking how the functions were built"
-                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                      br(""),
-                      
-                      helpText(strong(p("- More.../Data Quality"
-                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                      br(""),
-                      helpText((p("This tab exists to define the minimum requirements that a database must have to apply statistical inference (the customer wanted to migrate valuable information and not spend resources on obsolete datasets)"
-                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      # br(""),
+                      # helpText((p("This is the way I learned R, looking how the functions were built"
+                      #             , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       br(""),
                       
+                      helpText((p("- More (Data Quality)"
+                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       br(""),
-                      br(""),
+                      # helpText((p("This tab exists to define the minimum requirements that a database must have to apply statistical inference (the customer wanted to migrate valuable information and not spend resources on obsolete datasets)"
+                      #             , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      # br(""),
+                      # 
+                      # br(""),
+                      # br(""),
                       br(""),
                       helpText(strong(p("R is an Open Source language for statistical computing. No license cost, adapted for any business."
                                         , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      br(""),
+                      br(""),
+                      br(""),
+                      br(""),
+                      br(""),
                       br("")
-                      
                       #img(scr="https://www.rstudio.com/wp-content/uploads/2018/10/RStudio-Logo.png"),
                       
                       
@@ -199,15 +186,17 @@ ui <- fluidPage(
 				opacity: 0.8;
 				background-color: white;
 				margin-top: -20px;
-				width: 100%;
+				width: 150%;
 				",
+               br(),
+               helpText((p("This first tab shows the principle features from a dataset Correlation, Variables plots and Distribution"
+                           , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                
                div(
                  style = "padding: 50px",
                  
-                 # Correlation matrix
                  uiOutput("datasets2"),
-                 actionButton("QVW","Quick View"),
+                 actionButton("QVW","View (Push Me)"),downloadButton("report", "Generate report"),
                  h3("Correlogram"),
                  plotOutput("Corrrr"),
                  h3("Variables"),
@@ -226,23 +215,27 @@ ui <- fluidPage(
 				opacity: 0.8;
 				background-color: white;
 				margin-top: -20px;
-				width: 100%;
+				width: 150%;
 				",
                br(),
-               h2("Summary"),
-               h4("This tab runs R and SQL online"),
+               helpText((p("With this tab it is possible to compile R and SQL code online and download the data to work in Excel"
+                           , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+               # helpText((p("This tab was born to solve the problem of using R in a computer with user's restrictions or even a smartphone, taking advantage of SQL natural integration with R"
+               #             , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+               # br(""),
+               h4("You can write any code accepted by R whose output be a data.frame:"),
+               h5("importance(randomForest(Ozone ~ ., data=airquality, mtry=3,
+                        importance=TRUE, na.action=na.omit))"),
                actionButton("Con_D","Run SQL"),
                actionButton("Con_R","Run R"),
-               downloadButton("desc_qr","Download","csv"),
+               downloadButton("desc_qr","Download (csv)","csv"),
                textInput("query__01",label =  h3("Query (SQL)"), 
                          value = "SELECT * FROM DF WHERE Species = \"virginica\" ",
                          width = "700px"),
                textInput("query__02",label =  h3("Query (R)"), 
                          value = "table(DF[[\"Species\"]])",
                          width = "700px"),
-               h4("You can write any code accepted by R whose output be a data.frame:"),
-               h5("importance(randomForest(Ozone ~ ., data=airquality, mtry=3,
-                        importance=TRUE, na.action=na.omit))"),
+               
                #textOutput("query_r"),
                
                hr(),
@@ -250,7 +243,7 @@ ui <- fluidPage(
                br(),br(),br(),br(),br()
                )
       ),
-      tabPanel("My Package", 
+      tabPanel("My Probability Model", 
                br(),
                column(12, offset=0, align="center" ,
                       
@@ -259,16 +252,21 @@ ui <- fluidPage(
 				opacity: 0.8;
 				background-color: white;
 				margin-top: -20px;
-				width: 100%;
-				",
-               h2("My package (FitUltD)"),
-               h4("Tool to fit distributions (Just be careful with overfitting)"),
+				width: 150%;
+				",br(),
+                      helpText((p("FitUltD is a personal project. This library allows you to explain illneses and natural behaviours through a probability function (fitting a parametric model to a disease that affected the population in different phases using machine learning clustering methods)."
+                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      helpText((p("Applications: DNA methylation in human  genome | Growth rates among the individuals | Ruin theory for insurance companies | Insurance policies distribution | Fraud detection "
+                                  , style="color:black ; font-family: 'times'; font-size:16pt;text-align:left"))) ,
+                      
+               # h2("My package (FitUltD)"),
+               # h4("Tool to fit distributions (Just be careful with overfitting)"),
                textInput("SIM_Dist",label =  h3("Choose a modal or multimodal distribution."), 
-                         value = "c(rnorm(1000,0,1),rgamma(1000,9,2))",
+                         value = "c(rnorm(700,0,1),rgamma(700,9,2))",
                          width = "600px"),
-               actionButton("SIM_FT","Simulate"),
-               actionButton("FIT_FT","Fit"),
-               h4("You can try with any kind of information, copy and paste one of the following codes in the text input: "),
+               actionButton("SIM_FT","Simulate (1)"),
+               actionButton("FIT_FT","Fit (2)"),
+               h4("You can try with any kind of information, copy and paste one of the following codes in the textbox above: "),
                h5("iris$Petal.Length"),
                h5("mtcars$mpg"),
                h5("trees$Volume"),
@@ -287,7 +285,6 @@ ui <- fluidPage(
                br(),
                plotOutput("Fit_plot2"),
                br(),br(),br(),br(),br(),br()
-               # withSpinner(plotOutput("Fit_plot"),type = 6)
                )
       ),
       tabPanel("Machine Learning", 
@@ -299,9 +296,12 @@ ui <- fluidPage(
 				opacity: 0.8;
 				background-color: white;
 				margin-top: -20px;
-				width: 100%;
+				width: 150%;
 				",
-               h2("Machine Learning Tab"),
+                      helpText((p("This tab has academical aims, to show a student the basics, visualizing data during the fitting process of a machine learning model"
+                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      
+               #h2("Machine Learning Tab"),
                uiOutput("datasets"),
                #selectInput("Var_est","Select Dataset",choices = c("Year","Decade"),multiple = F),
                
@@ -328,21 +328,25 @@ ui <- fluidPage(
                br(),br(),br(),br(),br(),br()
                )
       ),
-      tabPanel("View", 
+      tabPanel("View Code", 
                br(),
-               textInput("fun_name",h2("Write a function"),value = "lm"),
+               textInput("fun_name",h2("Write an R function"),value = "lm"),
                column(12,offset=0 ,style="
 				background-image: url(my_image.png);
 				opacity: 0.8;
 				background-color: white;
-				width: 100%;
+				width: 150%;
 				",
+                      br(""),
+                      helpText((p("By this way I became a Developer, this tab reveals how the creators built R"
+                                  , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      
               h5(paste0("Try: Summary, ls, apply, mtcars, ifelse, stop, pi, lm.fit, system.time, glm, var, ts, sd, formals, iris, data.frame, decompose, R.home, arima, try, is.error, randomForest, kmeans, q, as.factor, write.csv, read.csv, warning ...")),
               br(),
               htmlOutput("selected_var"),
               br(),br(),br(),br(),br()
                )),
-      tabPanel("More...", 
+      tabPanel("More", 
                br(),
                column(12, offset=0, align="center" ,
                       
@@ -351,7 +355,7 @@ ui <- fluidPage(
 				opacity: 0.8;
 				background-color: white;
 				margin-top: -20px;
-				width: 100%;
+				width: 150%;
 				",
                       div(
                         id = "sign_in_panel",
@@ -366,7 +370,7 @@ ui <- fluidPage(
                         br(),
                         div(
                           class = "form-group",
-                          style = "width: 100%",
+                          style = "width: 60%",
                           tags$label(
                             tagList(icon("envelope"), "email/user"),
                             `for` = "email"
@@ -381,7 +385,7 @@ ui <- fluidPage(
                         br(),
                         div(
                           class = "form-group",
-                          style = "width: 100%",
+                          style = "width: 60%",
                           tags$label(
                             tagList(icon("unlock-alt"), "password"),
                             `for` = "password"
@@ -492,10 +496,72 @@ ui <- fluidPage(
                       )
                       ))
                
-               
-      )
-      
-      
+              #Close tab panel 
+      ),
+      tabPanel("About me", 
+               br(),
+               column(12, offset=0, align="center" ,
+                      
+                      # Set the style of this page
+                      style="
+				background-image: url(my_image.png);
+				opacity: 0.8;
+				background-color: white;
+				margin-top: -20px;
+				width: 150%;
+				",
+                      br(),
+                      br(),
+                      
+                      # img(src='~/www/jcdvl1.jpeg'),
+                      img(src='JC_D.jpg'),
+                      
+                      helpText((p("I am an Actuary focused in Data Analysis, Statistics and Risk, my experience includes data quality, pre-processing, apply statistical and probability methods (machine learning), data visualization, reporting and opportunity areas detection."
+                                        , style="color:black ; font-family: 'times'; font-size:18pt ; width: 65%"))) ,
+                      
+                      helpText(strong(p("Visit my ",a("GitHub", href="http://www.github.com/jcval94", target="_blank"), " or send me an email to: valc941226@gmail.com" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      helpText(strong(p("",a("Python", href="http://www.github.com/jcval94/ML-with-Python", target="_blank"), "" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      br(""),
+                      helpText(strong(p("",a("R package", href="http://www.github.com/jcval94/FitUltD", target="_blank"), "" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      br(""),
+                      helpText(strong(p("",a("Excel VBA - Random Variables", href="http://www.github.com/jcval94/Visual_Data_Use", target="_blank"), "" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      br(""),
+                      helpText(strong(p("",a("Articles", href="http://www.github.com/jcval94/Articles", target="_blank"), "" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      br(""),
+                      helpText(strong(p("",a("Linked In", href="https://www.linkedin.com/in/jose-carlos-del-valle/", target="_blank"), "" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      
+                      # h5(paste0("Try: Summary, ls, apply, mtcars, ifelse, stop, pi, lm.fit, system.time, glm, var, ts, sd, formals, iris, data.frame, decompose, R.home, arima, try, is.error, randomForest, kmeans, q, as.factor, write.csv, read.csv, warning ...")),
+                      br(),br(),
+                      br(),
+                      helpText(strong(p("TESTIMONIES" 
+                                        , style="color:black ; font-family: 'times'; font-size:24pt"))) ,
+                      br(),    
+                      helpText((p("\"By this way, I allow myself to broadly recommend Mr. José Carlos Del Valle López, who worked under my supervision from May to December 2018. During that time, Mr. Del Valle proved to be an Honest, responsible and committed person with his work. I extend the present for the proposes that serve the interested party.\"" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt; font-style: italic"))) ,
+                      
+                      downloadLink("downloadData1", "Dra. Liliana Sotelo  - General Manager (Download Letter)"),
+                      br(),br(),
+                      helpText((p("\"I have worked alongside José Carlos, both teaching for the first generation students at UNAM; he has shown to have the skills and qualifications to work with great performance and proved to be a responsible and reliable person. He is creative and outgoing as well, with the ability to find non trivial solutions. I am pleased to recommend him.\" "
+                                        , style="color:black ; font-family: 'times'; font-size:18pt; font-style: italic"))) ,
+                      
+                      downloadLink("downloadData2", "- Act. Guillermo Andrés Wolf - Manager (Download Letter)"),
+                      br(),br(),   
+                      helpText((p("\"It’s my pleasure to provide this recommendation for Act. José Carlos Del Valle López, over the last year we have developed academic projects together related with Risk Theory and worked as colleges during our last year at National University Autonomous of Mexico. I have always been impressed by his passion to learn, always brushing up his interpersonal and technical skills. He has high quality standards for his work and the ability to solve and explain deep logical problems finding the optimal way to implement it into the business He is a very kind person by nature, responsible, organized and extremely dedicated.\"" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt; font-style: italic"))) ,
+                      
+                      downloadLink("downloadData3", "- Act. Kevin Eric García - Collegue (Download Letter)"),
+                               
+                      br(),br(),br(),br(),br(),br(),br(),
+                      
+                      # img(src='lgbt_ally.jpg'),
+                      br()
+               ))
       
     )
     
@@ -533,7 +599,6 @@ server <- function(input, output,session) {
     if(assertthat::is.error(qqry)){
       qqry<<-data.frame(Error=as.character(qqry))
     }
-    
     
     output$DLS<-renderDataTable({
       qqry
@@ -588,6 +653,26 @@ server <- function(input, output,session) {
       }
     },
     contentType="text/csv"
+  )
+  
+  #####PDFS
+  output$downloadData1 <- downloadHandler(
+    filename = "Rec_L.pdf",
+    content = function(file) {
+      file.copy("www/Rec_L.pdf", file)
+    }
+  )
+  output$downloadData2 <- downloadHandler(
+    filename = "R_Letter.pdf",
+    content = function(file) {
+      file.copy("www/R_Letter.PDF", file)
+    }
+  )
+  output$downloadData3 <- downloadHandler(
+    filename = "RL_JCdV.pdf",
+    content = function(file) {
+      file.copy("www/RL_JCdV.pdf", file)
+    }
   )
   
   
@@ -828,7 +913,24 @@ server <- function(input, output,session) {
   output$datasets2 <- renderUI(
     selectInput("Data2", label = "Select Dataset", 
                 choices = dtsts[classes %in% "data.frame"], 
-                selected = "mtcars",multiple = F)
+                selected = "iris",multiple = F)
+  )
+  
+  output$report <- downloadHandler(
+    
+    filename = paste0("report_",Sys.Date(),".docx"),
+    content = function(file) {
+      
+      tempReport <- file.path(tempdir(), "report.Rmd")
+      file.copy("report.Rmd", tempReport, overwrite = TRUE)
+      
+      params <- list(n = input$Data2)
+      
+      rmarkdown::render(tempReport, output_file = file,
+                        params = params,encoding = "UTF-8",
+                        envir = new.env(parent = globalenv())
+      )
+    }
   )
   
   # output$Corrrr<-renderPlot({})
@@ -836,7 +938,7 @@ server <- function(input, output,session) {
   observeEvent(input$QVW,{
     #print(input$Data)
     Data2<-tibble::as_tibble(get(input$Data2))
-    if(ncol(Data2)<3){
+    if(ncol(Data2)<2){
       Data2<-iris
     }
     
@@ -852,8 +954,6 @@ server <- function(input, output,session) {
                     colors = c("tomato2", "white", "springgreen3"), 
                     title=paste0("Correlogram of ",input$Data2), 
                     ggtheme=theme_bw))
-    
-    print(assertthat::is.error(pl1))
     
     if(assertthat::is.error(pl1)){
       pl1<-plot(DataN)
@@ -1068,11 +1168,11 @@ server <- function(input, output,session) {
     })
   })
   
+  
   if(FALSE){
     library(rsconnect)
     deployApp()
   }
 }
 
-# Run the application 
 shinyApp(ui = ui, server = server)
