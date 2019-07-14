@@ -6,7 +6,6 @@ text_eval<-function(a){
 
 dtsts<-ls("package:datasets")
 classes<-purrr::map(dtsts,~class(text_eval(.x)))
-#source("time_series/ts.R")
 
 library(DT)
 library(shinyjs)
@@ -36,7 +35,7 @@ library(TSA)
 ui <- fluidPage(
   
   useShinyjs(),
-  # extendShinyjs(text = "shinyjs.reset = function() {history.go(0)}"),
+  
   theme = shinytheme("lumen"),
   includeCSS("www/custom.css"),
   #dashboardPage(
@@ -68,7 +67,7 @@ ui <- fluidPage(
   #helpText(strong("Data Visualization Dashboard")),
   br(),
   column(12, offset=0,
-  h1(strong("Data Visualization Dashboard"),style="
+  h1(strong("Welcome to my homepage"),style="
 				background-image: url(my_image.png);
 				opacity: 0.7;
 				background-color: white;
@@ -81,11 +80,10 @@ ui <- fluidPage(
     # within tabPanels(), define the pages for sidebar menu items
     
     tabsetPanel(
-      tabPanel("Welcome",
+      tabPanel("Intro",
                
                
                
-               # Name
                br(),
                # Only one zone for the home page
                column(12, offset=0, align="center" ,
@@ -101,64 +99,105 @@ ui <- fluidPage(
                       
                       # And write the welcome message
                       br(""),br(""),br(""),
-                      helpText(strong("Welcome to iLightData"
+                      helpText(strong("José Carlos Del Valle"
                                       , style="color:black ; font-family: 'times'; font-size:50pt ; font-type:bold" ) ) ,
+                      
+                      img(src='JC_D.jpg'),
+                      
+                      helpText((p("I am an Actuary focused in Data Analysis and Visualization, Statistics and Risk, my experience includes data quality, pre-processing, apply statistical and probability methods (machine learning), data visualization, reporting and opportunity areas detection."
+                                  , style="color:black ; font-family: 'times'; font-size:18pt ; width: 65%"))) ,
+                      
+                      
                       br(""),
-                      helpText(strong(p("- iLightData's purpose is to accelerate automatable procedures without cost, online and without complex installation processes. It allows you to work with: R, SQL, Excel, Google Drive & Spreadsheet, Spark, MarkDown, Visual, GitHub, etc."
+                      helpText((p("Here you can test, see and download reports, statistics models or even a Machine Learnign algorithm, my work purpose is to accelerate and create automatable procedures developing dynamic applications without license cost, local or online and without complex installation processes. Here you to work with: R, SQL, Excel, Google Drive, Spreadsheet, Spark, MarkDown, HTML, GitHub, etc."
+                                        , style="color:black ; font-family: 'times'; font-size:18pt ; width: 65%"))) ,
+                      br(""),
+                      helpText(strong(p("Feel free to explore the tabs above."
                                         , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       br(""),
-                      helpText(strong(p("- Feel free to explore."
+                      helpText((p("Index: "
                                         , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                      br(""),
-                      helpText(strong(p("- Index: "
-                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                      br(""),
                       br(""),
                       # helpText(strong(p("Content"
                       #                   , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
                       # br(""),
                       helpText((p("- Visualization "
-                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       # br(""),
                       # helpText((p("This first tab shows you the principle features from a dataset to see the basic relations and behaviours"
-                      #             , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      #             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       br(""),
                       helpText((p("- Query "
-                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       br(""),
                       # helpText((p("This tab was born to solve the problem of using R in a computer with user's restrictions or even a smartphone, taking advantage of SQL natural integration with R"
-                      #             , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      #             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       # br(""),
                       helpText((p("- My probability model "
-                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       br(""),
                       # helpText((p("FitUltD is a personal project. It exists due to the need to fit a parametric model to a disease that affected the population in two different phases, fitting distributions using machine learning clustering methods. Aplications:"
-                      #             , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      #             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       # helpText((p("DNA methylation in human and mouse genome, distribution of growth rates among the individuals, ruin theory, claim insurance policies distribution, etc."
-                      #             , style="color:black ; font-family: 'times'; font-size:16pt;text-align:left"))) ,
+                      #             , style="color:black ; font-family: 'times'; font-size:16pt"))) ,
                       # br(""),
                       helpText((p("- Machine Learning"
-                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       # br(""),
                       # helpText((p("This tab allows to visualize data during the fitting process of a machine learning model"
-                      #             , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      #             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       br(""),
                       helpText((p("- View Code"
-                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       # br(""),
                       # helpText((p("This is the way I learned R, looking how the functions were built"
-                      #             , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                      #             , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       br(""),
                       
                       helpText((p("- More (Data Quality)"
-                                        , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
                       br(""),
-                      # helpText((p("This tab exists to define the minimum requirements that a database must have to apply statistical inference (the customer wanted to migrate valuable information and not spend resources on obsolete datasets)"
-                      #             , style="color:black ; font-family: 'times'; font-size:18pt;text-align:left"))) ,
-                      # br(""),
-                      # 
-                      # br(""),
-                      # br(""),
+                      
+                      helpText(strong(p("Visit my ",a("GitHub", href="http://www.github.com/jcval94", target="_blank"), " or send me an email to: valc941226@gmail.com" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      helpText(strong(p("",a("Python", href="http://www.github.com/jcval94/ML-with-Python", target="_blank"), "" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      br(""),
+                      helpText(strong(p("",a("R package", href="http://www.github.com/jcval94/FitUltD", target="_blank"), "" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      br(""),
+                      helpText(strong(p("",a("Excel VBA - Random Variables", href="http://www.github.com/jcval94/Visual_Data_Use", target="_blank"), "" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      br(""),
+                      helpText(strong(p("",a("Articles", href="http://www.github.com/jcval94/Articles", target="_blank"), "" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      br(""),
+                      helpText(strong(p("",a("Linked In", href="https://www.linkedin.com/in/jose-carlos-del-valle/", target="_blank"), "" 
+                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
+                      
+                      # h5(paste0("Try: Summary, ls, apply, mtcars, ifelse, stop, pi, lm.fit, system.time, glm, var, ts, sd, formals, iris, data.frame, decompose, R.home, arima, try, is.error, randomForest, kmeans, q, as.factor, write.csv, read.csv, warning ...")),
+                      br(),br(),
+                      br(),
+                      helpText(strong(p("TESTIMONIES" 
+                                        , style="color:black ; font-family: 'times'; font-size:24pt"))) ,
+                      br(),    
+                      helpText((p("\"By this way, I allow myself to broadly recommend Mr. José Carlos Del Valle López, who worked under my supervision from May to December 2018. During that time, Mr. Del Valle proved to be an Honest, responsible and committed person with his work. I extend the present for the proposes that serve the interested party.\"" 
+                                  , style="color:black ; font-family: 'times'; font-size:18pt; font-style: italic"))) ,
+                      
+                      downloadLink("downloadData1", "Dra. Liliana Sotelo  - General Manager (Download Letter)"),
+                      br(),
+                      helpText((p("\"I have worked alongside José Carlos, both teaching for the first generation students at UNAM; he has shown to have the skills and qualifications to work with great performance and proved to be a responsible and reliable person. He is creative and outgoing as well, with the ability to find non trivial solutions. I am pleased to recommend him.\" "
+                                  , style="color:black ; font-family: 'times'; font-size:18pt; font-style: italic"))) ,
+                      
+                      downloadLink("downloadData2", "- Act. Guillermo Andrés Wolf - Manager (Download Letter)"),
+                      br(),   
+                      helpText((p("\"It’s my pleasure to provide this recommendation for Act. José Carlos Del Valle López, over the last year we have developed academic projects together related with Risk Theory and worked as colleges during our last year at National University Autonomous of Mexico. I have always been impressed by his passion to learn, always brushing up his interpersonal and technical skills. He has high quality standards for his work and the ability to solve and explain deep logical problems finding the optimal way to implement it into the business He is a very kind person by nature, responsible, organized and extremely dedicated.\"" 
+                                  , style="color:black ; font-family: 'times'; font-size:18pt; font-style: italic"))) ,
+                      
+                      downloadLink("downloadData3", "- Act. Kevin Eric García - Collegue (Download Letter)"),
+                      
+                      br(),br(),br(),br(),
+                      
                       br(""),
                       helpText(strong(p("R is an Open Source language for statistical computing. No license cost, adapted for any business."
                                         , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
@@ -497,71 +536,27 @@ ui <- fluidPage(
                       ))
                
               #Close tab panel 
-      ),
-      tabPanel("About me", 
-               br(),
-               column(12, offset=0, align="center" ,
-                      
-                      # Set the style of this page
-                      style="
-				background-image: url(my_image.png);
-				opacity: 0.8;
-				background-color: white;
-				margin-top: -20px;
-				width: 150%;
-				",
-                      br(),
-                      br(),
-                      
-                      # img(src='~/www/jcdvl1.jpeg'),
-                      img(src='JC_D.jpg'),
-                      
-                      helpText((p("I am an Actuary focused in Data Analysis, Statistics and Risk, my experience includes data quality, pre-processing, apply statistical and probability methods (machine learning), data visualization, reporting and opportunity areas detection."
-                                        , style="color:black ; font-family: 'times'; font-size:18pt ; width: 65%"))) ,
-                      
-                      helpText(strong(p("Visit my ",a("GitHub", href="http://www.github.com/jcval94", target="_blank"), " or send me an email to: valc941226@gmail.com" 
-                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                      helpText(strong(p("",a("Python", href="http://www.github.com/jcval94/ML-with-Python", target="_blank"), "" 
-                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                      br(""),
-                      helpText(strong(p("",a("R package", href="http://www.github.com/jcval94/FitUltD", target="_blank"), "" 
-                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                      br(""),
-                      helpText(strong(p("",a("Excel VBA - Random Variables", href="http://www.github.com/jcval94/Visual_Data_Use", target="_blank"), "" 
-                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                      br(""),
-                      helpText(strong(p("",a("Articles", href="http://www.github.com/jcval94/Articles", target="_blank"), "" 
-                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                      br(""),
-                      helpText(strong(p("",a("Linked In", href="https://www.linkedin.com/in/jose-carlos-del-valle/", target="_blank"), "" 
-                                        , style="color:black ; font-family: 'times'; font-size:18pt"))) ,
-                      
-                      # h5(paste0("Try: Summary, ls, apply, mtcars, ifelse, stop, pi, lm.fit, system.time, glm, var, ts, sd, formals, iris, data.frame, decompose, R.home, arima, try, is.error, randomForest, kmeans, q, as.factor, write.csv, read.csv, warning ...")),
-                      br(),br(),
-                      br(),
-                      helpText(strong(p("TESTIMONIES" 
-                                        , style="color:black ; font-family: 'times'; font-size:24pt"))) ,
-                      br(),    
-                      helpText((p("\"By this way, I allow myself to broadly recommend Mr. José Carlos Del Valle López, who worked under my supervision from May to December 2018. During that time, Mr. Del Valle proved to be an Honest, responsible and committed person with his work. I extend the present for the proposes that serve the interested party.\"" 
-                                        , style="color:black ; font-family: 'times'; font-size:18pt; font-style: italic"))) ,
-                      
-                      downloadLink("downloadData1", "Dra. Liliana Sotelo  - General Manager (Download Letter)"),
-                      br(),br(),
-                      helpText((p("\"I have worked alongside José Carlos, both teaching for the first generation students at UNAM; he has shown to have the skills and qualifications to work with great performance and proved to be a responsible and reliable person. He is creative and outgoing as well, with the ability to find non trivial solutions. I am pleased to recommend him.\" "
-                                        , style="color:black ; font-family: 'times'; font-size:18pt; font-style: italic"))) ,
-                      
-                      downloadLink("downloadData2", "- Act. Guillermo Andrés Wolf - Manager (Download Letter)"),
-                      br(),br(),   
-                      helpText((p("\"It’s my pleasure to provide this recommendation for Act. José Carlos Del Valle López, over the last year we have developed academic projects together related with Risk Theory and worked as colleges during our last year at National University Autonomous of Mexico. I have always been impressed by his passion to learn, always brushing up his interpersonal and technical skills. He has high quality standards for his work and the ability to solve and explain deep logical problems finding the optimal way to implement it into the business He is a very kind person by nature, responsible, organized and extremely dedicated.\"" 
-                                        , style="color:black ; font-family: 'times'; font-size:18pt; font-style: italic"))) ,
-                      
-                      downloadLink("downloadData3", "- Act. Kevin Eric García - Collegue (Download Letter)"),
-                               
-                      br(),br(),br(),br(),br(),br(),br(),
-                      
-                      # img(src='lgbt_ally.jpg'),
-                      br()
-               ))
+      )
+#       tabPanel("About me", 
+#                br(),
+#                column(12, offset=0, align="center" ,
+#                       
+#                       # Set the style of this page
+#                       style="
+# 				background-image: url(my_image.png);
+# 				opacity: 0.8;
+# 				background-color: white;
+# 				margin-top: -20px;
+# 				width: 150%;
+# 				",
+#                       br(),
+#                       br(),
+#                       
+#                       # img(src='~/www/jcdvl1.jpeg'),
+#                       
+#                       # img(src='lgbt_ally.jpg'),
+#                       br()
+#                ))
       
     )
     
@@ -1175,4 +1170,5 @@ server <- function(input, output,session) {
   }
 }
 
+# Run the application 
 shinyApp(ui = ui, server = server)
