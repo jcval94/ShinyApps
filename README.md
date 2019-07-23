@@ -10,5 +10,7 @@ https://jcval94.shinyapps.io/FitUltD_Shiny/
 3.-Ensemble Learning for Time Series
 https://jcval94.shinyapps.io/Ensemble-Learning-for-Time-Series/
 
+4.-SQL Querys & Reports
+https://valc941226.shinyapps.io/SQL_Reports/
 
 
