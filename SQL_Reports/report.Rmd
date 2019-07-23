@@ -1,0 +1,110 @@
+---
+title: "Report"
+author: "José Carlos Del Valle"
+output: word_document
+params:
+  n: NA
+---
+
+```{r echo = FALSE}
+# Variables globales para el código
+db<-get(params$n)
+p = params$n
+Data2<-tibble::as_tibble(get(p))
+    if(ncol(Data2)<3){
+      Data2<-iris
+    }
+    DataN<-(Data2[,purrr::map_lgl(Data2,is.numeric)])
+    
+    corr <- round(cor(na.omit(DataN)), 1)
+mlc<-corr[lower.tri(corr)]
+
+A<-row.names(corr)
+nomb<-c()
+for(i in 1:(length(A)-1)){
+  for(j in (i+1):(length(A))){
+    nomb<-c(nomb,paste0(A[i]," & ",A[j]))
+  }
+}
+
+Order<-data.frame(A=nomb,B=mlc)
+Order<-Order[order(Order[[2]]),]
+
+minR<-Order[(Order[[2]])< -.3,1]
+maxR<-Order[(Order[[2]])>.3,1]
+indR<-Order[abs(Order[[2]])<.3,1]
+
+    
+    pl1<-try(ggcorrplot::ggcorrplot(corr, hc.order = TRUE, 
+                    type = "lower", 
+                    lab = TRUE, 
+                    lab_size = 3, 
+                    method="circle", 
+                    colors = c("tomato2", "white", "springgreen3"), 
+                    title=paste0("Correlogram of ",p), 
+                    ggtheme=theme_bw))
+
+```
+
+The ``r params$n`` data set has ``r ncol(db)`` variables named: ``r names(db)``.
+
+We can see some relevant information in the following table:
+
+```{r, echo=FALSE, fig.align="center"}
+dfdesc<-round(describe(iris),3)
+dfdesc<-dfdesc[,1:(ncol(dfdesc)-4)]
+    kable(dfdesc)
+```
+
+
+The most correlated variabes are: ``r maxR``, therefore, we are able to predict or classify
+
+The variables with inverse correlation are: ``r maxR``, therefore, we are able to predict or classify as well
+
+Also, we can say that the following variables are independant of each other: ``r indR``.
+
+
+```{r, echo=FALSE, fig.align="center"}
+    pl1
+```
+
+We can see a scatter plot to confirm the previous plot, the more it looks like a line, the more there is a relationship between them
+
+
+```{r, echo=FALSE, fig.align="center"}
+  plot(DataN[,1:min(5,ncol(DataN))],col=rainbow(ncol(DataN)))
+```
+
+The distribution of each variable allows us to observe outlaiers and fit parametric models
+
+```{r, echo=FALSE, fig.align="center"}
+  all_nms<-names(Data2)
+    all_N<-names(DataN)
+    clasif<-all_nms[!all_nms %in% all_N]
+    if(length(clasif)!=0){
+    ntcls<-names(Data2) %in% clasif
+    
+    names(Data2)[ntcls]<-paste0("Cl",1:sum(ntcls))
+    names(Data2)[!ntcls]<-paste0("Nm",1:sum(!ntcls))
+    
+    p <- ggplot(Data2, aes(factor(Cl1),Nm1))
+    
+    p + geom_violin() + geom_jitter(height = 0, width = 0.05) +  theme_minimal() +
+        ylab((all_N)[1]) +
+        xlab((clasif)[1])
+    }else{
+      names(Data2)<-paste0("Nm",1:ncol(Data2))
+      Data2<-scale(Data2)
+      DF2<-data.frame(Y=do.call(c,purrr::map(Data2,c)),
+      X=rep(all_nms,each=nrow(Data2)))
+      
+      p <- ggplot(DF2, aes(factor(X),Y))
+      p + geom_violin() + geom_jitter(height = 0, width = 0.05) +  theme_minimal() +
+          ylab((all_N)[1])+xlab("Variables")
+    }
+```
+
+
+
+
+

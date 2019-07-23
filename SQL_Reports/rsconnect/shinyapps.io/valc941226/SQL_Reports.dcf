@@ -1,0 +1,12 @@
+name: SQL_Reports
+title: SQL_Reports
+username:
+account: valc941226
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1045274
+bundleId: 2255212
+url: https://valc941226.shinyapps.io/SQL_Reports/
+when: 1563811725.31996
+asMultiple: FALSE
+asStatic: FALSE

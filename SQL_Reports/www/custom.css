@@ -1,0 +1,6 @@
+html {
+    background-image: url(fondo.png);
+}
+body{
+    background: inherit;
+}
